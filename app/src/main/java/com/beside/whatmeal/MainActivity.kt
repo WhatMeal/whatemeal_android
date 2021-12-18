@@ -1,38 +1,39 @@
 package com.beside.whatmeal
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import com.beside.whatmeal.ui.theme.WhatMealTheme
+import androidx.core.splashscreen.SplashScreen
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.*
 
 class MainActivity : ComponentActivity() {
+    private val coroutineScope: CoroutineScope = lifecycleScope
+    private val shouldKeepShowSplashScreenLiveData: MutableLiveData<Boolean> =
+        MutableLiveData(true)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            WhatMealTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(color = MaterialTheme.colors.background) {
-                    Greeting("Android")
-                }
+        initSplashScreen(installSplashScreen())
+
+        shouldKeepShowSplashScreenLiveData.observe(this) { shouldKeepShowSplashScreen ->
+            if(!shouldKeepShowSplashScreen) {
+                startActivity(Intent(this, TutorialActivity::class.java))
+                finish()
             }
         }
     }
-}
 
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
+    private fun initSplashScreen(splashScreen: SplashScreen) {
+        splashScreen.setKeepVisibleCondition { shouldKeepShowSplashScreenLiveData.value ?: false }
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    WhatMealTheme {
-        Greeting("Android")
+        coroutineScope.launch {
+            withContext(Dispatchers.IO) {
+                delay(2000L)
+                shouldKeepShowSplashScreenLiveData.postValue(false)
+            }
+        }
     }
 }
