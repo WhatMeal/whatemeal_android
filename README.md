@@ -1,2 +1,2 @@
-# android
+# WhatMeal - Android
 WhatMeal - Android
