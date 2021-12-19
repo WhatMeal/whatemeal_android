@@ -3,5 +3,11 @@
     <style name="Theme.WhatMeal.SplashScreen" parent="Theme.SplashScreen">
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_logo</item>
         <item name="android:windowSplashScreenBackground">@color/bg0</item>
+
+        <item name="android:statusBarColor">@color/bg0</item>
+        <item name="android:windowLightStatusBar">true</item>
+
+        <item name="android:navigationBarColor">@color/bg0</item>
+        <item name="android:windowLightNavigationBar">true</item>
     </style>
 </resources>
