@@ -109,10 +109,9 @@ class TutorialActivity : AppCompatActivity() {
             )
             PrimaryButton(
                 onClick = onStartButtonClick,
-                modifier = Modifier.padding(top = 56.dp)
-            ) {
-                Text(text = "시작하기")
-            }
+                modifier = Modifier.padding(top = 56.dp),
+                text = "시작하기"
+            )
         }
     }
 
