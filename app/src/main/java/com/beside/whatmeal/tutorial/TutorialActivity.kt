@@ -30,25 +30,23 @@ import com.beside.whatmeal.compose.WhatMealTextStyle
 import com.beside.whatmeal.data.SettingLocalDataSource
 import com.beside.whatmeal.survey.SurveyActivity
 
-class TutorialActivity : AppCompatActivity() {
+class TutorialActivity : AppCompatActivity(), TutorialView {
+    private val tutorialPresenter: TutorialPresenter by lazy {
+        TutorialPresenterImpl(SettingLocalDataSource(this))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val settingLocalDataSource = SettingLocalDataSource(this)
 
         setContent {
-            TutorialScreen(
-                onStartButtonClick = {
-                    settingLocalDataSource.setTutorialShown(true)
-                    startActivity(Intent(this, SurveyActivity::class.java))
-                    finish()
-                }
-            )
+            TutorialScreen(tutorialPresenter)
         }
     }
 
     @Composable
-    fun TutorialScreen(onStartButtonClick: () -> Unit) {
+    private fun TutorialScreen(tutorialPresenter: TutorialPresenter) {
         val scrollState = rememberScrollState()
+
         Column(
             modifier = Modifier
                 .background(color = WhatMealColor.Bg0)
@@ -56,68 +54,82 @@ class TutorialActivity : AppCompatActivity() {
                 .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.tutorial_logo),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 73.57.dp)
-            )
-            Text(
-                text = stringResource(id = R.string.tutorial_top_bold_description),
-                style = WhatMealTextStyle.Bold,
-                fontSize = 24.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 19.47.dp)
-            )
-            Text(
-                text = stringResource(id = R.string.tutorial_top_regular_description),
-                style = WhatMealTextStyle.Regular,
-                color = WhatMealColor.Bg60,
-                fontSize = 16.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-            Image(
-                painter = painterResource(id = R.drawable.tutorial_top_image),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 32.dp),
-                contentScale = ContentScale.FillWidth
-            )
-            Text(
-                text = stringResource(id = R.string.tutorial_bottom_bold_description),
-                style = WhatMealTextStyle.Bold,
-                fontSize = 24.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 72.dp)
-            )
-            Text(
-                text = stringResource(id = R.string.tutorial_bottom_regular_description),
-                style = WhatMealTextStyle.Regular,
-                color = WhatMealColor.Bg60,
-                fontSize = 16.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-            Image(
-                painter = painterResource(id = R.drawable.tutorial_bottom_image),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(top = 32.dp, start = 45.dp, end = 45.dp)
-                    .fillMaxWidth(),
-                contentScale = ContentScale.FillWidth
-            )
-            PrimaryButton(
-                onClick = onStartButtonClick,
-                modifier = Modifier.padding(top = 56.dp),
-                text = stringResource(id = R.string.tutorial_start_button_text)
-            )
+            DescriptionSection()
+            StartButton(tutorialPresenter = tutorialPresenter)
         }
+    }
+
+    @Composable
+    private fun DescriptionSection() {
+        Image(
+            painter = painterResource(id = R.drawable.tutorial_logo),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 73.57.dp)
+        )
+        Text(
+            text = stringResource(id = R.string.tutorial_top_bold_description),
+            style = WhatMealTextStyle.Bold,
+            fontSize = 24.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 19.47.dp)
+        )
+        Text(
+            text = stringResource(id = R.string.tutorial_top_regular_description),
+            style = WhatMealTextStyle.Regular,
+            color = WhatMealColor.Bg60,
+            fontSize = 16.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+        Image(
+            painter = painterResource(id = R.drawable.tutorial_top_image),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 32.dp),
+            contentScale = ContentScale.FillWidth
+        )
+        Text(
+            text = stringResource(id = R.string.tutorial_bottom_bold_description),
+            style = WhatMealTextStyle.Bold,
+            fontSize = 24.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 72.dp)
+        )
+        Text(
+            text = stringResource(id = R.string.tutorial_bottom_regular_description),
+            style = WhatMealTextStyle.Regular,
+            color = WhatMealColor.Bg60,
+            fontSize = 16.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+        Image(
+            painter = painterResource(id = R.drawable.tutorial_bottom_image),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(top = 32.dp, start = 45.dp, end = 45.dp)
+                .fillMaxWidth(),
+            contentScale = ContentScale.FillWidth
+        )
+    }
+
+    @Composable
+    private fun StartButton(tutorialPresenter: TutorialPresenter) =
+        PrimaryButton(
+            onClick = { tutorialPresenter.onClickStartButton() },
+            modifier = Modifier.padding(top = 56.dp),
+            text = stringResource(id = R.string.tutorial_start_button_text)
+        )
+
+    override fun startSurveyActivity() {
+        startActivity(Intent(this, SurveyActivity::class.java))
+        finish()
     }
 
     @Preview
     @Composable
-    private fun TutorialScreenPreview() = TutorialScreen { /* Do nothing */ }
+    private fun TutorialScreenPreview() = TutorialScreen(tutorialPresenter)
 }
