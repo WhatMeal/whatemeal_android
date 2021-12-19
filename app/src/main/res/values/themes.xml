@@ -5,7 +5,7 @@
     </style>
 
     <!-- Base application theme. -->
-    <style name="Theme.WhatMeal" parent="Theme.AppCompat.Light">
+    <style name="Theme.WhatMeal" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:statusBarColor">@color/bg0</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
