@@ -9,6 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -42,3 +43,12 @@ fun PrimaryButton(
         )
     }
 )
+
+@Preview(name = "EnabledPrimaryButton")
+@Composable
+private fun EnabledPrimaryButtonPreView() = PrimaryButton(onClick = { /* Do nothing */ }, text = "미리보기")
+
+@Preview(name = "DisabledPrimaryButton")
+@Composable
+private fun DisabledPrimaryButtonPreView() =
+    PrimaryButton(onClick = { /* Do nothing */ }, text = "미리보기", enabled = false)
