@@ -1,4 +1,6 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
     <style name="Theme.WhatMeal.SplashScreen" parent="Theme.SplashScreen">
         <item name="windowSplashScreenAnimatedIcon">@drawable/splash_logo</item>
         <item name="windowSplashScreenBackground">@color/bg0</item>
@@ -6,7 +8,8 @@
         <item name="android:statusBarColor">@color/bg0</item>
         <item name="android:windowLightStatusBar">true</item>
 
-        <item name="android:navigationBarColor">@color/bg100</item>
+        <item name="android:navigationBarColor">@color/bg0</item>
+        <item name="android:windowLightNavigationBar">true</item>
     </style>
 
     <!-- Base application theme. -->
@@ -14,6 +17,7 @@
         <item name="android:statusBarColor">@color/bg0</item>
         <item name="android:windowLightStatusBar">true</item>
 
-        <item name="android:navigationBarColor">@color/bg100</item>
+        <item name="android:navigationBarColor">@color/bg0</item>
+        <item name="android:windowLightNavigationBar">true</item>
     </style>
 </resources>
