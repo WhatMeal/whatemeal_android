@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -62,14 +63,14 @@ class TutorialActivity : AppCompatActivity() {
                     .padding(top = 73.57.dp)
             )
             Text(
-                text = "무엇을 먹을까\n고민하지 마세요.",
+                text = stringResource(id = R.string.tutorial_top_bold_description),
                 style = WhatMealTextStyle.Bold,
                 fontSize = 24.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 19.47.dp)
             )
             Text(
-                text = "몇 번의 터치만으로\n1분 안에 메뉴 고민을 해결해 줍니다!",
+                text = stringResource(id = R.string.tutorial_top_regular_description),
                 style = WhatMealTextStyle.Regular,
                 color = WhatMealColor.Bg60,
                 fontSize = 16.sp,
@@ -85,14 +86,14 @@ class TutorialActivity : AppCompatActivity() {
                 contentScale = ContentScale.FillWidth
             )
             Text(
-                text = "데이터 기반\n정확한 메뉴 추천",
+                text = stringResource(id = R.string.tutorial_bottom_bold_description),
                 style = WhatMealTextStyle.Bold,
                 fontSize = 24.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 72.dp)
             )
             Text(
-                text = "유저 평가 데이터 기반으로\n메뉴와 맛집을 추천해 줍니다!",
+                text = stringResource(id = R.string.tutorial_bottom_regular_description),
                 style = WhatMealTextStyle.Regular,
                 color = WhatMealColor.Bg60,
                 fontSize = 16.sp,
@@ -109,10 +110,9 @@ class TutorialActivity : AppCompatActivity() {
             )
             PrimaryButton(
                 onClick = onStartButtonClick,
-                modifier = Modifier.padding(top = 56.dp)
-            ) {
-                Text(text = "시작하기")
-            }
+                modifier = Modifier.padding(top = 56.dp),
+                text = stringResource(id = R.string.tutorial_start_button_text)
+            )
         }
     }
 

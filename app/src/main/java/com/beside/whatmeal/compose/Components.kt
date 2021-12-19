@@ -8,14 +8,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun PrimaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    content: @Composable RowScope.() -> Unit
+    text: String
 ) = Button(
     onClick = onClick,
     modifier = Modifier
@@ -31,5 +34,21 @@ fun PrimaryButton(
         disabledContentColor = WhatMealColor.Bg0
     ),
     contentPadding = PaddingValues(horizontal = 25.dp, vertical = 17.dp),
-    content = content
+    content = {
+        Text(
+            text = text,
+            style = WhatMealTextStyle.Medium,
+            color = WhatMealColor.Bg0,
+            fontSize = 16.sp
+        )
+    }
 )
+
+@Preview(name = "EnabledPrimaryButton")
+@Composable
+private fun EnabledPrimaryButtonPreView() = PrimaryButton(onClick = { /* Do nothing */ }, text = "미리보기")
+
+@Preview(name = "DisabledPrimaryButton")
+@Composable
+private fun DisabledPrimaryButtonPreView() =
+    PrimaryButton(onClick = { /* Do nothing */ }, text = "미리보기", enabled = false)

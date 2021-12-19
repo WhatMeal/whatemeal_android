@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">WhatMeal</string>
+
+    <!-- Tutorial -->
+    <string name="tutorial_top_bold_description">무엇을 먹을까\n고민하지 마세요.</string>
+    <string name="tutorial_top_regular_description">몇 번의 터치만으로\n1분 안에 메뉴 고민을 해결해 줍니다!</string>
+    <string name="tutorial_bottom_bold_description">데이터 기반\n정확한 메뉴 추천</string>
+    <string name="tutorial_bottom_regular_description">유저 평가 데이터 기반으로\n메뉴와 맛집을 추천해 줍니다!</string>
+    <string name="tutorial_start_button_text">시작하기</string>
+
 </resources>
