@@ -33,11 +33,12 @@ import com.beside.whatmeal.survey.SurveyActivity
 class TutorialActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val settingLocalDataSource = SettingLocalDataSource(this)
 
         setContent {
             TutorialScreen(
                 onStartButtonClick = {
-                    SettingLocalDataSource.setTutorialShown(this, true)
+                    settingLocalDataSource.setTutorialShown(true)
                     startActivity(Intent(this, SurveyActivity::class.java))
                     finish()
                 }
