@@ -1,11 +1,11 @@
-package com.beside.whatmeal.main
+package com.beside.whatmeal.splash
 
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
 import com.beside.whatmeal.data.SettingLocalDataSource
 import kotlinx.coroutines.*
 
-class MainViewModel(private val settingLocalDataSource: SettingLocalDataSource) : ViewModel() {
+class SplashViewModel(private val settingLocalDataSource: SettingLocalDataSource) : ViewModel() {
     private val coroutineScope: CoroutineScope = viewModelScope
 
     @VisibleForTesting
@@ -44,7 +44,7 @@ class MainViewModel(private val settingLocalDataSource: SettingLocalDataSource) 
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return MainViewModel(settingLocalDataSource) as T
+            return SplashViewModel(settingLocalDataSource) as T
         }
 
     }

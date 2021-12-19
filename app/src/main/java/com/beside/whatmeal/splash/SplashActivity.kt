@@ -1,5 +1,6 @@
-package com.beside.whatmeal.main
+package com.beside.whatmeal.splash
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -9,18 +10,19 @@ import com.beside.whatmeal.data.SettingLocalDataSource
 import com.beside.whatmeal.survey.SurveyActivity
 import com.beside.whatmeal.tutorial.TutorialActivity
 
-class MainActivity : ComponentActivity() {
-    private val mainViewModel: MainViewModel by viewModels {
-        MainViewModel.Factory(SettingLocalDataSource(this))
+@SuppressLint("CustomSplashScreen")
+class SplashActivity : ComponentActivity() {
+    private val splashViewModel: SplashViewModel by viewModels {
+        SplashViewModel.Factory(SettingLocalDataSource(this))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen().setKeepVisibleCondition {
-            mainViewModel.tutorialShownOrNull.value == null
+            splashViewModel.tutorialShownOrNull.value == null
         }
 
-        mainViewModel.tutorialShownOrNull.observe(this) { tutorialShown ->
+        splashViewModel.tutorialShownOrNull.observe(this) { tutorialShown ->
             if (tutorialShown == null) {
                 return@observe
             }
