@@ -1,51 +1,81 @@
 package com.beside.whatmeal.main
 
-import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
-import com.beside.whatmeal.data.SettingLocalDataSource
-import kotlinx.coroutines.*
+import com.beside.whatmeal.data.model.*
 
-class MainViewModel(private val settingLocalDataSource: SettingLocalDataSource) : ViewModel() {
-    private val coroutineScope: CoroutineScope = viewModelScope
+class MainViewModel : ViewModel() {
+    private val mutableMainViewState: MutableLiveData<MainViewState> =
+        MutableLiveData(MainViewState.ROUND)
+    val mainViewState: LiveData<MainViewState> = mutableMainViewState
 
-    @VisibleForTesting
-    val mutablePastMinimumTime: MutableLiveData<Boolean> = MutableLiveData(false)
-    private val mutableTutorialShownOrNull: MediatorLiveData<Boolean> =
+    private val mutableMainRoundType: MutableLiveData<MainRoundType> =
+        MutableLiveData(MainRoundType.BASIC)
+    val mainRoundType: LiveData<MainRoundType> = mutableMainRoundType
+
+    private val stateSelectedItemsMap: MutableMap<MainRoundType, MutableList<MainItem>> =
+        mutableMapOf<MainRoundType, MutableList<MainItem>>().apply {
+            MainRoundType.values().forEach { this[it] = mutableListOf() }
+        }
+    private val mutableSelectedItems: MutableLiveData<List<MainItem>> = MutableLiveData(listOf())
+    val selectedItems: LiveData<List<MainItem>> = mutableSelectedItems
+
+    private val mutableNextButtonEnabled: MediatorLiveData<Boolean> =
         MediatorLiveData<Boolean>().apply {
-            addSource(mutablePastMinimumTime) { value = isTutorialShownOrNull() }
+            value = false
+            addSource(mainRoundType) { value = isNextButtonEnabled() }
+            addSource(selectedItems) { value = isNextButtonEnabled() }
         }
+    val nextButtonEnabled: LiveData<Boolean> = mutableNextButtonEnabled
 
-    val tutorialShownOrNull: LiveData<Boolean> = mutableTutorialShownOrNull
-
-    init {
-        waitMinimumTime()
+    fun onNextClick() {
+        val currentRoundType = mainRoundType.value ?: return
+        val lastPageOrder = MainRoundType.values().size
+        val currentPageOrder = currentRoundType.pageOrder
+        if (currentPageOrder < lastPageOrder) {
+            val nextRoundType = MainRoundType.of(currentPageOrder + 1)
+            mutableMainRoundType.value = nextRoundType
+            mutableSelectedItems.value = stateSelectedItemsMap[nextRoundType]
+        } else if (currentPageOrder == lastPageOrder) {
+            // @TODO: Not implemented yet.
+            mutableMainViewState.value = MainViewState.FINISH
+            return
+        }
     }
 
-    private fun waitMinimumTime() = coroutineScope.launch {
-        withContext(Dispatchers.IO) {
-            delay(MINIMUM_TIME)
-            mutablePastMinimumTime.postValue(true)
-        }
-    }
-
-    private fun isTutorialShownOrNull(): Boolean? =
-        if (mutablePastMinimumTime.value == true) {
-            settingLocalDataSource.isTutorialShown()
+    fun onUpButtonClick() {
+        val currentRoundType = mainRoundType.value ?: return
+        val lastPageOrder = MainRoundType.values().size
+        if (currentRoundType.pageOrder in 2..lastPageOrder) {
+            val previousRoundType = MainRoundType.of(currentRoundType.pageOrder - 1)
+            mutableMainRoundType.value = previousRoundType
+            mutableSelectedItems.value = stateSelectedItemsMap[previousRoundType]
         } else {
-            null
+            return
         }
-
-    companion object {
-        private const val MINIMUM_TIME: Long = 2000L
     }
 
-    class Factory(
-        private val settingLocalDataSource: SettingLocalDataSource
-    ) : ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return MainViewModel(settingLocalDataSource) as T
+    fun onOptionSelect(mainItem: MainItem) {
+        val currentRoundType = mainRoundType.value ?: return
+        val selectedItems = stateSelectedItemsMap[currentRoundType] ?: return
+        when {
+            selectedItems.contains(mainItem) -> {
+                selectedItems.remove(mainItem)
+            }
+            selectedItems.size < currentRoundType.selectableCount -> {
+                selectedItems.add(mainItem)
+            }
+            selectedItems.size == currentRoundType.selectableCount -> {
+                selectedItems.removeLastOrNull()
+                selectedItems.add(mainItem)
+            }
+            else -> return
         }
+        mutableSelectedItems.value = selectedItems
+    }
 
+    private fun isNextButtonEnabled(): Boolean {
+        val selectableCount = mainRoundType.value?.selectableCount ?: return false
+        val selectedCount = selectedItems.value?.size ?: return false
+        return selectableCount == selectedCount
     }
 }

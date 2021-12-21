@@ -20,11 +20,14 @@ class TutorialPresenterImplTest {
     @Mock
     lateinit var settingLocalDataSource: SettingLocalDataSource
 
+    @Mock
+    lateinit var tutorialView: TutorialView
+
     private lateinit var tutorialPresenter: TutorialPresenter
 
     @Before
     fun setUp() {
-        tutorialPresenter = TutorialPresenterImpl(settingLocalDataSource)
+        tutorialPresenter = TutorialPresenterImpl(tutorialView, settingLocalDataSource)
     }
 
     @Test
@@ -34,5 +37,6 @@ class TutorialPresenterImplTest {
 
         // Verify
         verify(settingLocalDataSource).setTutorialShown(eq(true))
+        verify(tutorialView).startSurveyActivity()
     }
 }

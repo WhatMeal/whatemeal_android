@@ -1,14 +1,19 @@
 package com.beside.whatmeal.compose
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.annotation.FloatRange
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.progressSemantics
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,7 +27,7 @@ fun PrimaryButton(
 ) = Button(
     onClick = onClick,
     modifier = Modifier
-        .padding(start = 20.dp, end = 20.dp, bottom = 34.dp)
+        .padding(top = 8.dp, start = 24.dp, end = 24.dp, bottom = 34.dp)
         .fillMaxWidth()
         .then(modifier),
     enabled = enabled,
@@ -38,7 +43,6 @@ fun PrimaryButton(
         Text(
             text = text,
             style = WhatMealTextStyle.Medium,
-            color = WhatMealColor.Bg0,
             fontSize = 16.sp
         )
     }
@@ -46,9 +50,80 @@ fun PrimaryButton(
 
 @Preview(name = "EnabledPrimaryButton")
 @Composable
-private fun EnabledPrimaryButtonPreView() = PrimaryButton(onClick = { /* Do nothing */ }, text = "미리보기")
+private fun EnabledPrimaryButtonPreView() =
+    PrimaryButton(onClick = { /* Do nothing */ }, text = "미리보기")
 
 @Preview(name = "DisabledPrimaryButton")
 @Composable
 private fun DisabledPrimaryButtonPreView() =
     PrimaryButton(onClick = { /* Do nothing */ }, text = "미리보기", enabled = false)
+
+@Composable
+fun RoundedCornerLinearProgressIndicator(
+    @FloatRange(from = 0.0, to = 1.0) progress: Float,
+    modifier: Modifier = Modifier,
+    color: Color = WhatMealColor.Bg100,
+    backgroundColor: Color = Color(0xFFC4C4C4)
+) = Canvas(
+    modifier
+        .progressSemantics(progress)
+        .focusable()
+) {
+    val strokeWidth = size.height
+    drawRoundedCornerLinearIndicator(1f, backgroundColor, strokeWidth)
+    if (progress > 0.0f) {
+        drawRoundedCornerLinearIndicator(progress, color, strokeWidth)
+    }
+}
+
+private fun DrawScope.drawRoundedCornerLinearIndicator(
+    progress: Float,
+    color: Color,
+    strokeWidth: Float
+) {
+    val width = size.width
+    val radius = size.height / 2
+    val barEnd = ((progress * width) - radius).coerceIn(0f + radius, width - radius)
+
+    // Progress line
+    drawLine(
+        color = color,
+        start = Offset(radius, radius),
+        end = Offset(barEnd, radius),
+        strokeWidth = strokeWidth,
+        cap = StrokeCap.Round
+    )
+}
+
+@Preview
+@Composable
+fun RoundedCornerLinearProgressIndicatorPreview() =
+    Column(
+        modifier = Modifier
+            .width(360.dp)
+            .height(100.dp)
+            .padding(start = 20.dp, end = 20.dp)
+            .background(color = WhatMealColor.Bg0)
+    ) {
+        Text(text = "0%")
+        RoundedCornerLinearProgressIndicator(
+            progress = 0f,
+            modifier = Modifier
+                .width(320.dp)
+                .height(10.dp)
+        )
+        Text(text = "10%")
+        RoundedCornerLinearProgressIndicator(
+            progress = 0.1f,
+            modifier = Modifier
+                .width(320.dp)
+                .height(10.dp)
+        )
+        Text(text = "100%")
+        RoundedCornerLinearProgressIndicator(
+            progress = 1f,
+            modifier = Modifier
+                .width(320.dp)
+                .height(10.dp)
+        )
+    }

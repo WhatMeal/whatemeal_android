@@ -3,32 +3,27 @@ package com.beside.whatmeal.main
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.beside.whatmeal.data.SettingLocalDataSource
-import com.beside.whatmeal.survey.SurveyActivity
-import com.beside.whatmeal.tutorial.TutorialActivity
+import androidx.compose.runtime.getValue
+import com.beside.whatmeal.Food.FoodListActivity
+import com.beside.whatmeal.utils.observeAsNotNullState
 
 class MainActivity : ComponentActivity() {
-    private val mainViewModel: MainViewModel by viewModels {
-        MainViewModel.Factory(SettingLocalDataSource(this))
-    }
+    private val mainViewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        installSplashScreen().setKeepVisibleCondition {
-            mainViewModel.tutorialShownOrNull.value == null
-        }
-
-        mainViewModel.tutorialShownOrNull.observe(this) { tutorialShown ->
-            if (tutorialShown == null) {
-                return@observe
+        setContent {
+            val viewState by mainViewModel.mainViewState.observeAsNotNullState()
+            when (viewState) {
+                MainViewState.ROUND -> MainScreen(viewModel = mainViewModel)
+                MainViewState.LOADING,
+                MainViewState.FINISH -> {
+                    startActivity(Intent(this, FoodListActivity::class.java))
+                    finish()
+                }
             }
-
-            val activity =
-                if (tutorialShown) SurveyActivity::class.java else TutorialActivity::class.java
-            startActivity(Intent(this, activity))
-            finish()
         }
     }
 }
