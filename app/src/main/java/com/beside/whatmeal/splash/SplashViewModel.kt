@@ -36,7 +36,7 @@ class SplashViewModel(private val settingLocalDataSource: SettingLocalDataSource
         }
 
     companion object {
-        private const val MINIMUM_TIME: Long = 2000L
+        private const val MINIMUM_TIME: Long = 1000L
     }
 
     class Factory(

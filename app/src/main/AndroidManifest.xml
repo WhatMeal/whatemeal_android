@@ -9,8 +9,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WhatMeal">
         <activity
+            android:name=".Food.FoodListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".main.MainActivity"
+            android:exported="false" />
+        <activity
             android:name=".survey.SurveyActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".tutorial.TutorialActivity"
             android:exported="false" />

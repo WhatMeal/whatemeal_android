@@ -15,4 +15,6 @@ object WhatMealColor {
     val Brand40: Color = Color(0xFFAEDDFF)
     val Brand20: Color = Color(0xFF11D554)
     val Brand0: Color = Color(0xFFCDFBCD)
+
+    val Gray1: Color = Color(0xFF333333)
 }
