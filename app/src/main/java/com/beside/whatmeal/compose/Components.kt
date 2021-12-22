@@ -97,7 +97,7 @@ private fun DrawScope.drawRoundedCornerLinearIndicator(
 
 @Preview
 @Composable
-fun RoundedCornerLinearProgressIndicatorPreview() =
+private fun RoundedCornerLinearProgressIndicatorPreview() =
     Column(
         modifier = Modifier
             .width(360.dp)

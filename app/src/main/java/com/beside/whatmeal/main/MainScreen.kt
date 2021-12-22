@@ -326,9 +326,9 @@ private fun CircleOption(
     Box(
         modifier = Modifier
             .then(modifier)
-            .clickable { onOptionSelect(item) }
             .size(size)
             .clip(CircleShape)
+            .clickable { onOptionSelect(item) }
             .background(if (optionSelected) WhatMealColor.Brand100 else WhatMealColor.Bg20),
         contentAlignment = Alignment.Center
     ) {

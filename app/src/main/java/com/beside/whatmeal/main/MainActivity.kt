@@ -6,7 +6,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.getValue
-import com.beside.whatmeal.Food.FoodListActivity
+import com.beside.whatmeal.common.progress.CommonProgressScreen
+import com.beside.whatmeal.food.FoodListActivity
 import com.beside.whatmeal.utils.observeAsNotNullState
 
 class MainActivity : ComponentActivity() {
@@ -17,8 +18,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             val viewState by mainViewModel.mainViewState.observeAsNotNullState()
             when (viewState) {
-                MainViewState.ROUND -> MainScreen(viewModel = mainViewModel)
-                MainViewState.LOADING,
+                MainViewState.ROUND -> {
+                    MainScreen(mainViewModel)
+                }
+                MainViewState.LOADING -> {
+                    CommonProgressScreen(mainViewModel)
+                    mainViewModel.startAutoIncrement(1000L)
+                }
                 MainViewState.FINISH -> {
                     startActivity(Intent(this, FoodListActivity::class.java))
                     finish()
@@ -26,4 +32,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onBackPressed() =
+        mainViewModel.onBackPressed(runOSOnBackPressed = { super.onBackPressed() })
 }

@@ -1,12 +1,12 @@
 package com.beside.whatmeal.main
 
 import androidx.lifecycle.*
+import com.beside.whatmeal.common.progress.CommonProgressViewModelInterface
 import com.beside.whatmeal.data.model.*
+import kotlinx.coroutines.*
 
-class MainViewModel : ViewModel() {
-    private val mutableMainViewState: MutableLiveData<MainViewState> =
-        MutableLiveData(MainViewState.ROUND)
-    val mainViewState: LiveData<MainViewState> = mutableMainViewState
+class MainViewModel : ViewModel(), CommonProgressViewModelInterface {
+    private val coroutineScope: CoroutineScope = viewModelScope
 
     private val mutableMainRoundType: MutableLiveData<MainRoundType> =
         MutableLiveData(MainRoundType.BASIC)
@@ -27,6 +27,21 @@ class MainViewModel : ViewModel() {
         }
     val nextButtonEnabled: LiveData<Boolean> = mutableNextButtonEnabled
 
+    private val mutableAutoIncrementProgress: MutableLiveData<Float> =
+        MutableLiveData(START_PROGRESS)
+    override val autoIncrementProgress: LiveData<Float> = mutableAutoIncrementProgress
+
+    private val mutableLoadingFinish: MutableLiveData<Boolean> = MutableLiveData(false)
+    override val loadingFinished: LiveData<Boolean> = mutableLoadingFinish
+
+    private val mutableMainViewState: MediatorLiveData<MainViewState> =
+        MediatorLiveData<MainViewState>().apply {
+            value = MainViewState.ROUND
+            addSource(loadingFinished) { value = getMainViewState() }
+            addSource(autoIncrementProgress) { value = getMainViewState() }
+        }
+    val mainViewState: LiveData<MainViewState> = mutableMainViewState
+
     fun onNextClick() {
         val currentRoundType = mainRoundType.value ?: return
         val lastPageOrder = MainRoundType.values().size
@@ -36,9 +51,22 @@ class MainViewModel : ViewModel() {
             mutableMainRoundType.value = nextRoundType
             mutableSelectedItems.value = stateSelectedItemsMap[nextRoundType]
         } else if (currentPageOrder == lastPageOrder) {
-            // @TODO: Not implemented yet.
-            mutableMainViewState.value = MainViewState.FINISH
-            return
+            mutableMainViewState.value = MainViewState.LOADING
+            postSelectedItemsToRemote()
+        }
+    }
+
+    fun onBackPressed(runOSOnBackPressed: () -> Unit) {
+        when {
+            mainViewState.value == MainViewState.ROUND && mainRoundType.value?.pageOrder != 1 -> {
+                onUpButtonClick()
+            }
+            mainViewState.value == MainViewState.ROUND && mainRoundType.value?.pageOrder == 1 -> {
+                runOSOnBackPressed()
+            }
+            mainViewState.value != MainViewState.ROUND -> {
+                /* Do nothing */
+            }
         }
     }
 
@@ -73,9 +101,47 @@ class MainViewModel : ViewModel() {
         mutableSelectedItems.value = selectedItems
     }
 
+    fun startAutoIncrement(timeMillis: Long) = coroutineScope.launch {
+        withContext(Dispatchers.IO) {
+            val startTime = System.currentTimeMillis()
+            var currentTime = System.currentTimeMillis()
+            while (currentTime - startTime < timeMillis) {
+                mutableAutoIncrementProgress.postValue(
+                    (currentTime - startTime) / timeMillis.toFloat()
+                )
+                delay(DELAY_TIME_MILLIS)
+                currentTime = System.currentTimeMillis()
+            }
+            mutableAutoIncrementProgress.postValue(MAX_PROGRESS)
+        }
+    }
+
+    private fun postSelectedItemsToRemote() = coroutineScope.launch {
+        withContext(Dispatchers.IO) {
+            // @TODO: Not implemented yet.
+            delay((Math.random() * 1000).toLong())
+            mutableLoadingFinish.postValue(true)
+        }
+    }
+
+    private fun getMainViewState(): MainViewState = when {
+        mainViewState.value == MainViewState.ROUND -> MainViewState.ROUND
+        loadingFinished.value == true && autoIncrementProgress.value == MAX_PROGRESS -> {
+            MainViewState.FINISH
+        }
+        else -> MainViewState.LOADING
+    }
+
     private fun isNextButtonEnabled(): Boolean {
         val selectableCount = mainRoundType.value?.selectableCount ?: return false
         val selectedCount = selectedItems.value?.size ?: return false
-        return selectableCount == selectedCount
+        return selectedCount in 1..selectableCount
+    }
+
+    companion object {
+        const val START_PROGRESS = 0f
+        const val MAX_PROGRESS = 0.99f
+
+        const val DELAY_TIME_MILLIS = 50L
     }
 }

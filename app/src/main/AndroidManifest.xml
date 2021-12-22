@@ -9,7 +9,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WhatMeal">
         <activity
-            android:name=".Food.FoodListActivity"
+            android:name=".food.FoodListActivity"
             android:exported="false" />
         <activity
             android:name=".main.MainActivity"

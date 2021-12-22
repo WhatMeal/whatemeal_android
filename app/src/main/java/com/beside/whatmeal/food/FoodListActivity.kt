@@ -1,4 +1,4 @@
-package com.beside.whatmeal.Food
+package com.beside.whatmeal.food
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
