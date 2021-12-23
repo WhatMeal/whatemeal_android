@@ -1,11 +1,8 @@
 package com.beside.whatmeal.compose
 
 import androidx.annotation.FloatRange
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.focusable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.progressSemantics
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -14,9 +11,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.beside.whatmeal.R
 
 @Composable
 fun PrimaryButton(
@@ -126,4 +125,20 @@ private fun RoundedCornerLinearProgressIndicatorPreview() =
                 .width(320.dp)
                 .height(10.dp)
         )
+    }
+
+@Composable
+fun Header(onUpButtonClick: () -> Unit, isUpButtonVisible: Boolean) =
+    Surface(
+        modifier = Modifier.height(44.dp)
+    ) {
+        if (isUpButtonVisible) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_back),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(top = 7.dp, start = 15.dp, bottom = 7.dp)
+                    .clickable { onUpButtonClick() }
+            )
+        }
     }

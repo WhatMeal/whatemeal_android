@@ -11,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -19,7 +18,6 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import com.beside.whatmeal.R
 import com.beside.whatmeal.compose.*
 import com.beside.whatmeal.main.uimodel.*
 import com.beside.whatmeal.main.viewmodel.MainViewModel
@@ -30,7 +28,7 @@ fun MainScreen(
     viewModel: MainViewModel
 ) {
     val roundState: MainRoundState by viewModel.mainRoundState.observeAsNotNullState()
-    val allItems: List<MainItem> = getItemListBy(roundState)
+    val allItems: List<MainItem> by viewModel.allItems.observeAsNotNullState()
     val selectedItems: List<MainItem> by viewModel.selectedItems.observeAsNotNullState()
     val nextButtonEnabled: Boolean by viewModel.nextButtonEnabled.observeAsNotNullState()
 
@@ -63,6 +61,7 @@ fun MainScreen(
                 onOptionSelect = { viewModel.onOptionSelect(it) },
                 modifier = Modifier
                     .weight(1f)
+                    .padding(start = 20.dp, end = 20.dp, top = 34.dp, bottom = 20.dp)
                     .fillMaxWidth(),
                 optionTextSize = roundState.optionTextSize,
                 allItems = allItems,
@@ -76,30 +75,6 @@ fun MainScreen(
         }
     }
 }
-
-private fun getItemListBy(roundState: MainRoundState): List<MainItem> = when (roundState) {
-    MainRoundState.BASIC -> Basic.values()
-    MainRoundState.SOUP -> Soup.values()
-    MainRoundState.COOK -> Cook.values()
-    MainRoundState.INGREDIENT -> Ingredient.values()
-    MainRoundState.STATE -> State.values()
-}.toList()
-
-@Composable
-private fun Header(onUpButtonClick: () -> Unit, isUpButtonVisible: Boolean) =
-    Surface(
-        modifier = Modifier.height(44.dp)
-    ) {
-        if (isUpButtonVisible) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_back),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(top = 7.dp, start = 15.dp, bottom = 7.dp)
-                    .clickable { onUpButtonClick() }
-            )
-        }
-    }
 
 @Composable
 private fun Title(text: String) =
@@ -228,8 +203,10 @@ private fun TwoOptionsSelector(
     selectedItems: List<MainItem>
 ) {
     Row(
-        modifier = Modifier.then(modifier),
-        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .padding(top = 80.dp)
+            .then(modifier),
+        verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
     ) {
         allItems.forEach { mainItem ->
@@ -255,7 +232,11 @@ private fun FourOptionsSelector(
     ConstraintLayout(modifier = modifier) {
         val (topOption, startOption, bottomOption, endOption, centerDummy) = createRefs()
         Canvas(
-            modifier = Modifier.constrainAs(centerDummy) { centerTo(parent) },
+            modifier = Modifier.constrainAs(centerDummy) {
+                top.linkTo(parent.top, margin = 157.dp)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+            },
             onDraw = { /* Do nothing */ }
         )
         val fourOptionsModifierArray = arrayOf(
@@ -289,10 +270,14 @@ private fun SevenOptionsSelector(
         val (firstOption, secondOption, thirdOption, fourthOption, fifthOption) = createRefs()
         val (sixthOption, seventhOption, eightOption, centerDummy) = createRefs()
         Canvas(
-            modifier = Modifier.constrainAs(centerDummy) { centerTo(parent) },
+            modifier = Modifier.constrainAs(centerDummy) {
+                top.linkTo(parent.top, margin = 160.dp)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+            },
             onDraw = { /* Do nothing */ }
         )
-        val fourOptionsModifierArray = arrayOf(
+        val sevenOptionsModifierArray = arrayOf(
             Modifier.constrainAs(firstOption) { circular(centerDummy, 330f, 110.dp) },
             Modifier.constrainAs(secondOption) { circular(centerDummy, 30f, 110.dp) },
             Modifier.constrainAs(thirdOption) { circular(centerDummy, 270f, 110.dp) },
@@ -305,7 +290,7 @@ private fun SevenOptionsSelector(
         allItems.forEachIndexed { index, mainItem ->
             CircleOption(
                 onOptionSelect = onOptionSelect,
-                modifier = fourOptionsModifierArray[index],
+                modifier = sevenOptionsModifierArray[index],
                 size = 100.dp,
                 optionSelected = selectedItems.contains(mainItem),
                 optionTextSize = optionTextSize,

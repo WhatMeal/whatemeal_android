@@ -2,9 +2,8 @@ package com.beside.whatmeal.main.viewmodel
 
 import androidx.lifecycle.*
 import com.beside.whatmeal.common.progress.CommonProgressViewModel
-import com.beside.whatmeal.main.uimodel.MainItem
-import com.beside.whatmeal.main.uimodel.MainRoundState
-import com.beside.whatmeal.main.uimodel.MainViewState
+import com.beside.whatmeal.main.uimodel.*
+import com.beside.whatmeal.survey.uimodel.SurveyItem
 import kotlinx.coroutines.*
 
 class MainViewModel : CommonProgressViewModel() {
@@ -17,6 +16,14 @@ class MainViewModel : CommonProgressViewModel() {
     private val mutableMainRoundState: MutableLiveData<MainRoundState> =
         MutableLiveData(MainRoundState.BASIC)
     val mainRoundState: LiveData<MainRoundState> = mutableMainRoundState
+
+    private val mutableAllItems: MediatorLiveData<List<MainItem>> =
+        MediatorLiveData<List<MainItem>>().apply {
+            addSource(mainRoundState) {
+                value = getAllItemsBy(mainRoundState.value ?: return@addSource)
+            }
+        }
+    val allItems: LiveData<List<MainItem>> = mutableAllItems
 
     private val stateSelectedItemsMap: MutableMap<MainRoundState, MutableList<MainItem>> =
         mutableMapOf<MainRoundState, MutableList<MainItem>>().apply {
@@ -38,9 +45,7 @@ class MainViewModel : CommonProgressViewModel() {
         val lastPageOrder = MainRoundState.values().size
         val currentPageOrder = currentRoundState.pageOrder
         if (currentPageOrder < lastPageOrder) {
-            val nextRoundState = MainRoundState.of(currentPageOrder + 1)
-            mutableMainRoundState.value = nextRoundState
-            mutableSelectedItems.value = stateSelectedItemsMap[nextRoundState]
+            changeRoundState(currentPageOrder + 1)
         } else if (currentPageOrder == lastPageOrder) {
             mutableMainViewState.value = MainViewState.PROGRESS
             postSelectedItemsToRemote()
@@ -48,26 +53,21 @@ class MainViewModel : CommonProgressViewModel() {
     }
 
     fun onBackPressed(runOSOnBackPressed: () -> Unit) {
+        val viewState = mainViewState.value
+        val pageOrder = mainRoundState.value?.pageOrder
         when {
-            mainViewState.value == MainViewState.ROUND && mainRoundState.value?.pageOrder != 1 -> {
-                onUpButtonClick()
-            }
-            mainViewState.value == MainViewState.ROUND && mainRoundState.value?.pageOrder == 1 -> {
-                runOSOnBackPressed()
-            }
-            mainViewState.value != MainViewState.ROUND -> {
-                /* Do nothing */
-            }
+            viewState == MainViewState.ROUND && pageOrder != 1 -> onUpButtonClick()
+            viewState == MainViewState.ROUND && pageOrder == 1 -> runOSOnBackPressed()
+            viewState != MainViewState.ROUND -> Unit
         }
     }
 
     fun onUpButtonClick() {
         val currentRoundState = mainRoundState.value ?: return
+        val currentPageOrder = currentRoundState.pageOrder
         val lastPageOrder = MainRoundState.values().size
-        if (currentRoundState.pageOrder in 2..lastPageOrder) {
-            val previousRoundState = MainRoundState.of(currentRoundState.pageOrder - 1)
-            mutableMainRoundState.value = previousRoundState
-            mutableSelectedItems.value = stateSelectedItemsMap[previousRoundState]
+        if (currentPageOrder in 2..lastPageOrder) {
+            changeRoundState(currentPageOrder - 1)
         } else {
             return
         }
@@ -92,6 +92,12 @@ class MainViewModel : CommonProgressViewModel() {
         mutableSelectedItems.value = selectedItems
     }
 
+    private fun changeRoundState(nextPageOrder: Int) {
+        val nextRoundState = MainRoundState.of(nextPageOrder)
+        mutableMainRoundState.value = nextRoundState
+        mutableSelectedItems.value = stateSelectedItemsMap[nextRoundState]
+    }
+
     private fun postSelectedItemsToRemote() = coroutineScope.launch {
         withContext(Dispatchers.IO) {
             // @TODO: Not implemented yet.
@@ -105,4 +111,12 @@ class MainViewModel : CommonProgressViewModel() {
         val selectedCount = selectedItems.value?.size ?: return false
         return selectedCount in 1..selectableCount
     }
+
+    private fun getAllItemsBy(roundState: MainRoundState): List<MainItem> = when (roundState) {
+        MainRoundState.BASIC -> Basic.values()
+        MainRoundState.SOUP -> Soup.values()
+        MainRoundState.COOK -> Cook.values()
+        MainRoundState.INGREDIENT -> Ingredient.values()
+        MainRoundState.STATE -> State.values()
+    }.toList()
 }
