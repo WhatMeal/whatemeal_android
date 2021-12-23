@@ -17,16 +17,16 @@ import com.beside.whatmeal.R
 import com.beside.whatmeal.compose.RoundedCornerLinearProgressIndicator
 import com.beside.whatmeal.compose.WhatMealColor
 import com.beside.whatmeal.compose.WhatMealTextStyle
-import com.beside.whatmeal.main.MainViewModel
+import com.beside.whatmeal.main.viewmodel.MainViewModel
 import com.beside.whatmeal.utils.observeAsNotNullState
 
 @Composable
-fun CommonProgressScreen(commonProgressViewModel: CommonProgressViewModelInterface) {
+fun CommonProgressScreen(commonProgressViewModel: CommonProgressViewModel) {
     val autoIncrementProgress
             by commonProgressViewModel.autoIncrementProgress.observeAsNotNullState()
-    val loadingFinished by commonProgressViewModel.loadingFinished.observeAsNotNullState()
+    val loadingFinished by commonProgressViewModel.isTaskFinished.observeAsNotNullState()
     val progress = when {
-        loadingFinished && autoIncrementProgress == 0.99f -> 1f
+        loadingFinished && autoIncrementProgress == CommonProgressViewModel.MAX_PROGRESS -> 1f
         else -> autoIncrementProgress
     }
 
@@ -67,12 +67,6 @@ fun CommonProgressScreen(commonProgressViewModel: CommonProgressViewModelInterfa
 
 @Preview
 @Composable
-private fun CommonProgressScreenPreviewLoadingTrue() {
-    CommonProgressScreen(MainViewModel())
-}
-
-@Preview
-@Composable
-private fun CommonProgressScreenPreviewLoadingFalse() {
+private fun CommonProgressScreenPreview() {
     CommonProgressScreen(MainViewModel())
 }

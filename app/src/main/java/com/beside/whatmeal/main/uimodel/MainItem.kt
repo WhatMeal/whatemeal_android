@@ -1,4 +1,4 @@
-package com.beside.whatmeal.data.model
+package com.beside.whatmeal.main.uimodel
 
 interface MainItem {
     val text: String

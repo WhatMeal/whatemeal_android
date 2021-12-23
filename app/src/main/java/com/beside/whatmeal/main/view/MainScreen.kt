@@ -1,4 +1,4 @@
-package com.beside.whatmeal.main
+package com.beside.whatmeal.main.view
 
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.*
@@ -21,15 +21,16 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.beside.whatmeal.R
 import com.beside.whatmeal.compose.*
-import com.beside.whatmeal.data.model.*
+import com.beside.whatmeal.main.uimodel.*
+import com.beside.whatmeal.main.viewmodel.MainViewModel
 import com.beside.whatmeal.utils.observeAsNotNullState
 
 @Composable
 fun MainScreen(
     viewModel: MainViewModel
 ) {
-    val roundType: MainRoundType by viewModel.mainRoundType.observeAsNotNullState()
-    val allItems: List<MainItem> = getItemListBy(roundType)
+    val roundState: MainRoundState by viewModel.mainRoundState.observeAsNotNullState()
+    val allItems: List<MainItem> = getItemListBy(roundState)
     val selectedItems: List<MainItem> by viewModel.selectedItems.observeAsNotNullState()
     val nextButtonEnabled: Boolean by viewModel.nextButtonEnabled.observeAsNotNullState()
 
@@ -40,7 +41,7 @@ fun MainScreen(
     ) {
         Header(
             onUpButtonClick = { viewModel.onUpButtonClick() },
-            isUpButtonVisible = roundType.isUpButtonVisible
+            isUpButtonVisible = roundState.isUpButtonVisible
         )
 
         val scrollState = rememberScrollState()
@@ -50,12 +51,12 @@ fun MainScreen(
                 .fillMaxWidth()
                 .verticalScroll(state = scrollState)
         ) {
-            Title(text = "Round ${roundType.pageOrder}. ${roundType.titleText}")
-            Progress(roundType.percentage)
+            Title(text = "Round ${roundState.pageOrder}. ${roundState.titleText}")
+            Progress(roundState.percentage)
             Description(
-                multiSelectableNoteVisible = roundType.selectableCount > 1,
-                boldDescriptionText = roundType.boldDescriptionText,
-                descriptionText = roundType.descriptionText
+                multiSelectableNoteVisible = roundState.selectableCount > 1,
+                boldDescriptionText = roundState.boldDescriptionText,
+                descriptionText = roundState.descriptionText
             )
 
             Selector(
@@ -63,7 +64,7 @@ fun MainScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),
-                optionTextSize = roundType.optionTextSize,
+                optionTextSize = roundState.optionTextSize,
                 allItems = allItems,
                 selectedItems = selectedItems
             )
@@ -76,12 +77,12 @@ fun MainScreen(
     }
 }
 
-private fun getItemListBy(roundType: MainRoundType): List<MainItem> = when (roundType) {
-    MainRoundType.BASIC -> Basic.values()
-    MainRoundType.SOUP -> Soup.values()
-    MainRoundType.COOK -> Cook.values()
-    MainRoundType.INGREDIENT -> Ingredient.values()
-    MainRoundType.STATE -> State.values()
+private fun getItemListBy(roundState: MainRoundState): List<MainItem> = when (roundState) {
+    MainRoundState.BASIC -> Basic.values()
+    MainRoundState.SOUP -> Soup.values()
+    MainRoundState.COOK -> Cook.values()
+    MainRoundState.INGREDIENT -> Ingredient.values()
+    MainRoundState.STATE -> State.values()
 }.toList()
 
 @Composable

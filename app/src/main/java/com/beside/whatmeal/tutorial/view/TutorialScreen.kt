@@ -23,6 +23,7 @@ import com.beside.whatmeal.R
 import com.beside.whatmeal.compose.PrimaryButton
 import com.beside.whatmeal.compose.WhatMealColor
 import com.beside.whatmeal.compose.WhatMealTextStyle
+import com.beside.whatmeal.tutorial.presenter.TutorialPresenter
 
 @Composable
 fun TutorialScreen(tutorialPresenter: TutorialPresenter) {

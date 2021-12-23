@@ -7,8 +7,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.beside.whatmeal.data.SettingLocalDataSource
+import com.beside.whatmeal.splash.viewmodel.SplashViewModel
 import com.beside.whatmeal.survey.SurveyActivity
-import com.beside.whatmeal.tutorial.TutorialActivity
+import com.beside.whatmeal.tutorial.TutorialActivityInterface
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : ComponentActivity() {
@@ -28,7 +29,7 @@ class SplashActivity : ComponentActivity() {
             }
 
             val activity =
-                if (tutorialShown) SurveyActivity::class.java else TutorialActivity::class.java
+                if (tutorialShown) SurveyActivity::class.java else TutorialActivityInterface::class.java
             startActivity(Intent(this, activity))
             finish()
         }

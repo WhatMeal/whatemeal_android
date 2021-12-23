@@ -2,14 +2,12 @@ package com.beside.whatmeal.utils
 
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.beside.whatmeal.compose.rememberSaveableMutableStateListOf
-import kotlin.reflect.KProperty
 
 fun <T : Any> LiveData<T>.observeDistinctUntilChanged(
     lifecycleOwner: LifecycleOwner,

@@ -1,6 +1,7 @@
 package com.beside.whatmeal.splash
 
 import com.beside.whatmeal.data.SettingLocalDataSource
+import com.beside.whatmeal.splash.viewmodel.SplashViewModel
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

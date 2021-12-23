@@ -1,4 +1,4 @@
-package com.beside.whatmeal.splash
+package com.beside.whatmeal.splash.viewmodel
 
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*

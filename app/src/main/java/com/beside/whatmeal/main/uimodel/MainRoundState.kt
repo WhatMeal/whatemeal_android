@@ -1,4 +1,4 @@
-package com.beside.whatmeal.main
+package com.beside.whatmeal.main.uimodel
 
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
@@ -6,7 +6,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 
 // @TODO: Fix it when figma is updated.
-enum class MainRoundType(
+enum class MainRoundState(
     @IntRange(from = 1) val pageOrder: Int,
     val isUpButtonVisible: Boolean,
     val titleText: String,
@@ -70,7 +70,7 @@ enum class MainRoundType(
     companion object {
         private val PAGE_ORDER_VALUE_MAP = values().associateBy { it.pageOrder }
 
-        fun of(@IntRange(from = 1, to = 5) pageOrder: Int): MainRoundType =
+        fun of(@IntRange(from = 1, to = 5) pageOrder: Int): MainRoundState =
             PAGE_ORDER_VALUE_MAP[pageOrder]
                 ?: throw IllegalArgumentException("Not supported pageOrder: $pageOrder")
     }
