@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.getValue
 import com.beside.whatmeal.food.FoodListActivity
 import com.beside.whatmeal.common.progress.CommonProgressScreen
@@ -14,8 +15,10 @@ import com.beside.whatmeal.main.viewmodel.MainViewModel
 import com.beside.whatmeal.utils.observeAsNotNullState
 import com.beside.whatmeal.utils.observeNotNull
 
+@ExperimentalFoundationApi
 class MainActivity : ComponentActivity() {
     private val mainViewModel: MainViewModel by viewModels()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -1,15 +1,19 @@
 package com.beside.whatmeal.survey.view
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -18,12 +22,28 @@ import com.beside.whatmeal.compose.*
 import com.beside.whatmeal.survey.uimodel.*
 import com.beside.whatmeal.survey.viewmodel.SurveyViewModel
 import com.beside.whatmeal.utils.observeAsNotNullState
+import com.beside.whatmeal.utils.observeDistinctUntilChanged
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
+@ExperimentalFoundationApi
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun SurveyScreen(
     viewModel: SurveyViewModel
 ) {
+    val coroutineScope: CoroutineScope = rememberCoroutineScope()
+
+    var previousRoundState: SurveyRoundState by rememberSaveableMutableStateOf(SurveyRoundState.AGE)
     val roundState: SurveyRoundState by viewModel.surveyRoundState.observeAsNotNullState()
+    val scrollState = rememberLazyListState()
+    if(previousRoundState != roundState) {
+        previousRoundState = roundState
+        coroutineScope.launch {
+            scrollState.scrollToItem(0)
+        }
+    }
+
     val allItems: List<SurveyItem> by viewModel.allItems.observeAsNotNullState()
     val selectedItems: List<SurveyItem> by viewModel.selectedItems.observeAsNotNullState()
     val nextButtonEnabled: Boolean by viewModel.nextButtonEnabled.observeAsNotNullState()
@@ -33,39 +53,36 @@ fun SurveyScreen(
             .background(color = WhatMealColor.Bg0)
             .fillMaxSize()
     ) {
-        Header(
-            onUpButtonClick = { viewModel.onUpButtonClick() },
-            isUpButtonVisible = roundState.isUpButtonVisible
-        )
-
-        val scrollState = rememberScrollState()
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .verticalScroll(state = scrollState)
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            state = scrollState
         ) {
-            Description(
-                boldDescriptionText = roundState.boldDescriptionText,
-                descriptionText = roundState.descriptionText
-            )
-
-            Selector(
-                onOptionSelect = { viewModel.onOptionSelect(it) },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 24.dp, end = 24.dp, top = 48.dp, bottom = 20.dp)
-                    .fillMaxWidth(),
-                allItems = allItems,
-                selectedItems = selectedItems,
-                listType = roundState.listType
-            )
-
-            NextButton(
-                onNextClick = { viewModel.onNextClick() },
-                enabled = nextButtonEnabled
-            )
+            stickyHeader {
+                Header(
+                    onUpButtonClick = { viewModel.onUpButtonClick() },
+                    isUpButtonVisible = roundState.isUpButtonVisible
+                )
+            }
+            item {
+                Description(
+                    boldDescriptionText = roundState.boldDescriptionText,
+                    descriptionText = roundState.descriptionText
+                )
+                Selector(
+                    onOptionSelect = { viewModel.onOptionSelect(it) },
+                    modifier = Modifier
+                        .padding(start = 24.dp, end = 24.dp, top = 48.dp, bottom = 20.dp)
+                        .fillMaxWidth(),
+                    allItems = allItems,
+                    selectedItems = selectedItems,
+                    listType = roundState.listType
+                )
+            }
         }
+        NextButton(
+            onNextClick = { viewModel.onNextClick() },
+            enabled = nextButtonEnabled
+        )
     }
 }
 
@@ -192,7 +209,8 @@ private fun RectangleOption(
     item: SurveyItem
 ) {
     Box(
-        modifier = Modifier.then(modifier)
+        modifier = Modifier
+            .then(modifier)
             .width(156.dp)
             .height(110.dp)
             .clip(RoundedCornerShape(18.dp))
@@ -277,6 +295,7 @@ private fun WideRectangleOptionPreviewNotSelected() = WideRectangleOption(
     item = Standard.PRICE
 )
 
+@ExperimentalFoundationApi
 @Preview
 @Composable
 private fun SurveyPreview() = SurveyScreen(SurveyViewModel())

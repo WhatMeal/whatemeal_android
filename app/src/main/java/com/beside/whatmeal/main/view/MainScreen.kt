@@ -1,12 +1,17 @@
 package com.beside.whatmeal.main.view
 
+import android.annotation.SuppressLint
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,12 +27,27 @@ import com.beside.whatmeal.compose.*
 import com.beside.whatmeal.main.uimodel.*
 import com.beside.whatmeal.main.viewmodel.MainViewModel
 import com.beside.whatmeal.utils.observeAsNotNullState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
+@ExperimentalFoundationApi
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun MainScreen(
     viewModel: MainViewModel
 ) {
+    val coroutineScope: CoroutineScope = rememberCoroutineScope()
+
+    var previousRoundState: MainRoundState by rememberSaveableMutableStateOf(MainRoundState.BASIC)
     val roundState: MainRoundState by viewModel.mainRoundState.observeAsNotNullState()
+    val scrollState = rememberLazyListState()
+    if (previousRoundState != roundState) {
+        previousRoundState = roundState
+        coroutineScope.launch {
+            scrollState.scrollToItem(0)
+        }
+    }
+
     val allItems: List<MainItem> by viewModel.allItems.observeAsNotNullState()
     val selectedItems: List<MainItem> by viewModel.selectedItems.observeAsNotNullState()
     val nextButtonEnabled: Boolean by viewModel.nextButtonEnabled.observeAsNotNullState()
@@ -37,42 +57,41 @@ fun MainScreen(
             .background(color = WhatMealColor.Bg0)
             .fillMaxSize()
     ) {
-        Header(
-            onUpButtonClick = { viewModel.onUpButtonClick() },
-            isUpButtonVisible = roundState.isUpButtonVisible
-        )
-
-        val scrollState = rememberScrollState()
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .verticalScroll(state = scrollState)
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            state = scrollState
         ) {
-            Title(text = "Round ${roundState.pageOrder}. ${roundState.titleText}")
-            Progress(roundState.percentage)
-            Description(
-                multiSelectableNoteVisible = roundState.selectableCount > 1,
-                boldDescriptionText = roundState.boldDescriptionText,
-                descriptionText = roundState.descriptionText
-            )
+            stickyHeader {
+                Header(
+                    onUpButtonClick = { viewModel.onUpButtonClick() },
+                    isUpButtonVisible = roundState.isUpButtonVisible
+                )
+            }
+            item {
+                Title(text = "Round ${roundState.pageOrder}. ${roundState.titleText}")
+                Progress(roundState.percentage)
+                Description(
+                    multiSelectableNoteVisible = roundState.selectableCount > 1,
+                    boldDescriptionText = roundState.boldDescriptionText,
+                    descriptionText = roundState.descriptionText
+                )
 
-            Selector(
-                onOptionSelect = { viewModel.onOptionSelect(it) },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 20.dp, end = 20.dp, top = 34.dp, bottom = 20.dp)
-                    .fillMaxWidth(),
-                optionTextSize = roundState.optionTextSize,
-                allItems = allItems,
-                selectedItems = selectedItems
-            )
-
-            NextButton(
-                onNextClick = { viewModel.onNextClick() },
-                enabled = nextButtonEnabled
-            )
+                Selector(
+                    onOptionSelect = { viewModel.onOptionSelect(it) },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 20.dp, end = 20.dp, top = 34.dp, bottom = 20.dp)
+                        .fillMaxWidth(),
+                    optionTextSize = roundState.optionTextSize,
+                    allItems = allItems,
+                    selectedItems = selectedItems
+                )
+            }
         }
+        NextButton(
+            onNextClick = { viewModel.onNextClick() },
+            enabled = nextButtonEnabled
+        )
     }
 }
 
@@ -337,6 +356,7 @@ private fun CircleOptionPreviewSelected() =
 private fun CircleOptionPreview() =
     CircleOption({}, Modifier, 100.dp, false, 16.sp, State.STRESS)
 
+@ExperimentalFoundationApi
 @Preview
 @Composable
 private fun BasicPreview() = MainScreen(MainViewModel())

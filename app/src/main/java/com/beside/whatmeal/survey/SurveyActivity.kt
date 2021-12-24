@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.getValue
 import com.beside.whatmeal.common.progress.CommonProgressScreen
 import com.beside.whatmeal.main.MainActivity
@@ -14,6 +15,7 @@ import com.beside.whatmeal.survey.viewmodel.SurveyViewModel
 import com.beside.whatmeal.utils.observeAsNotNullState
 import com.beside.whatmeal.utils.observeNotNull
 
+@ExperimentalFoundationApi
 class SurveyActivity : ComponentActivity() {
     private val surveyViewModel: SurveyViewModel by viewModels()
 

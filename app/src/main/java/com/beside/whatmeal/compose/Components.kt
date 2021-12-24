@@ -129,8 +129,12 @@ private fun RoundedCornerLinearProgressIndicatorPreview() =
 
 @Composable
 fun Header(onUpButtonClick: () -> Unit, isUpButtonVisible: Boolean) =
-    Surface(
-        modifier = Modifier.height(44.dp)
+    Column(
+        modifier = Modifier
+            .height(44.dp)
+            .fillMaxWidth()
+            .background(WhatMealColor.Bg0),
+        verticalArrangement = Arrangement.Center
     ) {
         if (isUpButtonVisible) {
             Icon(
