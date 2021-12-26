@@ -1,6 +1,6 @@
 package com.beside.whatmeal.tutorial
 
-import com.beside.whatmeal.data.SettingLocalDataSource
+import com.beside.whatmeal.data.local.SettingLocalDataSource
 import com.beside.whatmeal.tutorial.presenter.TutorialPresenter
 import com.beside.whatmeal.tutorial.presenter.TutorialPresenterImpl
 import org.junit.Before

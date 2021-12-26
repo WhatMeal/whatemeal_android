@@ -1,21 +1,60 @@
 package com.beside.whatmeal.main.viewmodel
 
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
+import android.util.Log
+import androidx.core.os.bundleOf
 import androidx.lifecycle.*
+import androidx.savedstate.SavedStateRegistryOwner
 import com.beside.whatmeal.common.progress.CommonProgressViewModel
+import com.beside.whatmeal.foodlist.uimodel.FoodListFirstLoadingState
+import com.beside.whatmeal.main.MainActivity
+import com.beside.whatmeal.main.MainViewActionHandler
 import com.beside.whatmeal.main.uimodel.*
-import com.beside.whatmeal.survey.uimodel.SurveyItem
 import kotlinx.coroutines.*
 
-class MainViewModel : CommonProgressViewModel() {
+class MainViewModel(
+    savedState: SavedStateHandle,
+    private val actionHandler: MainViewActionHandler
+) : CommonProgressViewModel(), MainViewModelInterface {
     private val coroutineScope: CoroutineScope = viewModelScope
+    private val mutableMainIdRequestState: MediatorLiveData<MainIdRequestState> =
+        MediatorLiveData<MainIdRequestState>().apply {
+            addSource(progressFinishEvent) { value = getMainIdRegistrationState() }
+        }
+    val mainIdRequestState: LiveData<MainIdRequestState> =
+        mutableMainIdRequestState
 
-    private val mutableMainViewState: MutableLiveData<MainViewState> =
-        MutableLiveData(MainViewState.ROUND)
-    val mainViewState: LiveData<MainViewState> = mutableMainViewState
+    private fun getMainIdRegistrationState(): MainIdRequestState =
+        if (progressFinishEvent.value != null) {
+            MainIdRequestState.DONE
+        } else {
+            MainIdRequestState.IN_PROGRESS
+        }
+
+    init {
+        requestIdToRemoteBy(savedState)
+    }
+
+    private fun requestIdToRemoteBy(savedState: SavedStateHandle) = coroutineScope.launch {
+        mutableMainIdRequestState.value = MainIdRequestState.IN_PROGRESS
+        startAutoIncrementProgress(1000L, ::onProgressFinished)
+
+        // @TODO: Not implemented yet.
+        withContext(Dispatchers.IO) {
+            delay((Math.random() * 2000).toLong())
+            mutableIsTaskFinished.postValue(true)
+        }
+    }
+
+    private fun onProgressFinished() {
+        mutableMainIdRequestState.value = MainIdRequestState.DONE
+    }
 
     private val mutableMainRoundState: MutableLiveData<MainRoundState> =
         MutableLiveData(MainRoundState.BASIC)
-    val mainRoundState: LiveData<MainRoundState> = mutableMainRoundState
+    override val mainRoundState: LiveData<MainRoundState> = mutableMainRoundState
 
     private val mutableAllItems: MediatorLiveData<List<MainItem>> =
         MediatorLiveData<List<MainItem>>().apply {
@@ -23,46 +62,35 @@ class MainViewModel : CommonProgressViewModel() {
                 value = getAllItemsBy(mainRoundState.value ?: return@addSource)
             }
         }
-    val allItems: LiveData<List<MainItem>> = mutableAllItems
+    override val allItems: LiveData<List<MainItem>> = mutableAllItems
 
     private val stateSelectedItemsMap: MutableMap<MainRoundState, MutableList<MainItem>> =
         mutableMapOf<MainRoundState, MutableList<MainItem>>().apply {
             MainRoundState.values().forEach { this[it] = mutableListOf() }
         }
     private val mutableSelectedItems: MutableLiveData<List<MainItem>> = MutableLiveData(listOf())
-    val selectedItems: LiveData<List<MainItem>> = mutableSelectedItems
+    override val selectedItems: LiveData<List<MainItem>> = mutableSelectedItems
 
-    private val mutableNextButtonEnabled: MediatorLiveData<Boolean> =
-        MediatorLiveData<Boolean>().apply {
-            value = false
-            addSource(mainRoundState) { value = isNextButtonEnabled() }
-            addSource(selectedItems) { value = isNextButtonEnabled() }
-        }
-    val nextButtonEnabled: LiveData<Boolean> = mutableNextButtonEnabled
-
-    fun onNextClick() {
+    override fun onNextClick() {
         val currentRoundState = mainRoundState.value ?: return
         val lastPageOrder = MainRoundState.values().size
         val currentPageOrder = currentRoundState.pageOrder
         if (currentPageOrder < lastPageOrder) {
             changeRoundState(currentPageOrder + 1)
         } else if (currentPageOrder == lastPageOrder) {
-            mutableMainViewState.value = MainViewState.PROGRESS
-            postSelectedItemsToRemote()
+            actionHandler.postMainViewAction(stateSelectedItemsMap.toStartFoodListScreenAction())
         }
     }
 
-    fun onBackPressed(runOSOnBackPressed: () -> Unit) {
-        val viewState = mainViewState.value
+    override fun onBackPressed(runOSOnBackPressed: () -> Unit) {
         val pageOrder = mainRoundState.value?.pageOrder
         when {
-            viewState == MainViewState.ROUND && pageOrder != 1 -> onUpButtonClick()
-            viewState == MainViewState.ROUND && pageOrder == 1 -> runOSOnBackPressed()
-            viewState != MainViewState.ROUND -> Unit
+            pageOrder != 1 -> onUpButtonClick()
+            pageOrder == 1 -> runOSOnBackPressed()
         }
     }
 
-    fun onUpButtonClick() {
+    override fun onUpButtonClick() {
         val currentRoundState = mainRoundState.value ?: return
         val currentPageOrder = currentRoundState.pageOrder
         val lastPageOrder = MainRoundState.values().size
@@ -73,7 +101,7 @@ class MainViewModel : CommonProgressViewModel() {
         }
     }
 
-    fun onOptionSelect(mainItem: MainItem) {
+    override fun onOptionSelect(mainItem: MainItem) {
         val currentRoundState = mainRoundState.value ?: return
         val selectedItems = stateSelectedItemsMap[currentRoundState] ?: return
         when {
@@ -98,20 +126,6 @@ class MainViewModel : CommonProgressViewModel() {
         mutableSelectedItems.value = stateSelectedItemsMap[nextRoundState]
     }
 
-    private fun postSelectedItemsToRemote() = coroutineScope.launch {
-        withContext(Dispatchers.IO) {
-            // @TODO: Not implemented yet.
-            delay((Math.random() * 2000).toLong())
-            mutableIsTaskFinished.postValue(true)
-        }
-    }
-
-    private fun isNextButtonEnabled(): Boolean {
-        val selectableCount = mainRoundState.value?.selectableCount ?: return false
-        val selectedCount = selectedItems.value?.size ?: return false
-        return selectedCount in 1..selectableCount
-    }
-
     private fun getAllItemsBy(roundState: MainRoundState): List<MainItem> = when (roundState) {
         MainRoundState.BASIC -> Basic.values()
         MainRoundState.SOUP -> Soup.values()
@@ -119,4 +133,47 @@ class MainViewModel : CommonProgressViewModel() {
         MainRoundState.INGREDIENT -> Ingredient.values()
         MainRoundState.STATE -> State.values()
     }.toList()
+
+    private fun MutableMap<MainRoundState, MutableList<MainItem>>.toStartFoodListScreenAction()
+            : MainViewAction.StartFoodListScreenAction = MainViewAction.StartFoodListScreenAction(
+        basics = this[MainRoundState.BASIC]?.joinToString(",") { it.id.toString() } ?: "",
+        soup = this[MainRoundState.SOUP]?.firstOrNull()?.toString() ?: "",
+        cooks = this[MainRoundState.COOK]?.joinToString(",") { it.id.toString() } ?: "",
+        ingredients = this[MainRoundState.INGREDIENT]?.joinToString(",") { it.id.toString() } ?: "",
+        states = this[MainRoundState.STATE]?.joinToString(",") { it.id.toString() } ?: ""
+    )
+
+    class Factory(
+        private val actionHandler: MainViewActionHandler,
+        owner: SavedStateRegistryOwner,
+        defaultArgs: Bundle? = null
+    ) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel?> create(
+            key: String,
+            modelClass: Class<T>,
+            handle: SavedStateHandle
+        ): T = MainViewModel(handle, actionHandler) as T
+    }
+
+    companion object {
+        private const val TAG = "MainViewModel"
+
+        private const val INTENT_PARAM_AGE = "age"
+        private const val INTENT_PARAM_MEAL_TILE = "meal_time"
+        private const val INTENT_PARAM_STANDARD = "standards"
+
+        fun createIntent(
+            context: Context,
+            age: String,
+            mealTime: String,
+            standards: String
+        ): Intent = Intent(context, MainActivity::class.java).putExtras(
+            bundleOf(
+                INTENT_PARAM_AGE to age,
+                INTENT_PARAM_MEAL_TILE to mealTime,
+                INTENT_PARAM_STANDARD to standards
+            ).also { Log.i(TAG, "createIntent bundle: $it") }
+        )
+    }
 }

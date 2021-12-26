@@ -5,21 +5,17 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.beside.whatmeal.data.SettingLocalDataSource
+import com.beside.whatmeal.data.local.SettingLocalDataSource
 import com.beside.whatmeal.splash.viewmodel.SplashViewModel
 import com.beside.whatmeal.survey.SurveyActivity
 import com.beside.whatmeal.tutorial.TutorialActivity
-import com.beside.whatmeal.tutorial.TutorialActivityInterface
 
-@ExperimentalFoundationApi
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : ComponentActivity() {
     private val splashViewModel: SplashViewModel by viewModels {
         SplashViewModel.Factory(SettingLocalDataSource(this))
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

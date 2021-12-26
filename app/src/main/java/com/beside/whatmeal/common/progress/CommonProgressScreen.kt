@@ -68,5 +68,5 @@ fun CommonProgressScreen(commonProgressViewModel: CommonProgressViewModel) {
 @Preview
 @Composable
 private fun CommonProgressScreenPreview() {
-    CommonProgressScreen(MainViewModel())
+    CommonProgressScreen(object : CommonProgressViewModel() {})
 }

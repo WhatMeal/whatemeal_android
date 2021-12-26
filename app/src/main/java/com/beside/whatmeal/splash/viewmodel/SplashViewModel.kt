@@ -2,7 +2,7 @@ package com.beside.whatmeal.splash.viewmodel
 
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
-import com.beside.whatmeal.data.SettingLocalDataSource
+import com.beside.whatmeal.data.local.SettingLocalDataSource
 import kotlinx.coroutines.*
 
 class SplashViewModel(private val settingLocalDataSource: SettingLocalDataSource) : ViewModel() {
@@ -46,6 +46,5 @@ class SplashViewModel(private val settingLocalDataSource: SettingLocalDataSource
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return SplashViewModel(settingLocalDataSource) as T
         }
-
     }
 }

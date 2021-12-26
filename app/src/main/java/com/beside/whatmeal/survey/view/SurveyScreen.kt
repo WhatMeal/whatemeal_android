@@ -1,32 +1,34 @@
 package com.beside.whatmeal.survey.view
 
 import android.annotation.SuppressLint
-import android.util.Log
+import androidx.compose.animation.*
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.beside.whatmeal.compose.*
+import com.beside.whatmeal.foodlist.uimodel.FoodListPagingState
 import com.beside.whatmeal.survey.uimodel.*
-import com.beside.whatmeal.survey.viewmodel.SurveyViewModel
+import com.beside.whatmeal.survey.viewmodel.SurveyViewModelPreviewParameterProvider
+import com.beside.whatmeal.survey.viewmodel.SurveyViewModelInterface as SurveyViewModel
 import com.beside.whatmeal.utils.observeAsNotNullState
-import com.beside.whatmeal.utils.observeDistinctUntilChanged
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@ExperimentalFoundationApi
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun SurveyScreen(
@@ -36,34 +38,57 @@ fun SurveyScreen(
 
     var previousRoundState: SurveyRoundState by rememberSaveableMutableStateOf(SurveyRoundState.AGE)
     val roundState: SurveyRoundState by viewModel.surveyRoundState.observeAsNotNullState()
-    val scrollState = rememberLazyListState()
-    if(previousRoundState != roundState) {
+    val scrollState = rememberScrollState()
+    if (previousRoundState != roundState) {
         previousRoundState = roundState
         coroutineScope.launch {
-            scrollState.scrollToItem(0)
+            scrollState.animateScrollTo(0, tween(300, 0, LinearOutSlowInEasing))
         }
     }
 
     val allItems: List<SurveyItem> by viewModel.allItems.observeAsNotNullState()
     val selectedItems: List<SurveyItem> by viewModel.selectedItems.observeAsNotNullState()
-    val nextButtonEnabled: Boolean by viewModel.nextButtonEnabled.observeAsNotNullState()
+    val nextButtonEnabled: Boolean = selectedItems.size == roundState.necessarySelectionCount
 
     Column(
         modifier = Modifier
-            .background(color = WhatMealColor.Bg0)
             .fillMaxSize()
+            .background(WhatMealColor.Bg0)
     ) {
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            state = scrollState
-        ) {
-            stickyHeader {
-                Header(
-                    onUpButtonClick = { viewModel.onUpButtonClick() },
-                    isUpButtonVisible = roundState.isUpButtonVisible
-                )
+        if (roundState.hasHeader) {
+            Header(
+                onUpButtonClick = { viewModel.onUpButtonClick() }
+            )
+        }
+        AnimatedContent(
+            targetState = roundState,
+            transitionSpec = {
+                if(targetState.pageOrder > initialState.pageOrder){
+                    slideInHorizontally(
+                        initialOffsetX = { it },
+                        animationSpec = tween(300, 0, LinearOutSlowInEasing)
+                    ) with slideOutHorizontally(
+                        targetOffsetX = { -it },
+                        animationSpec = tween(300, 0, LinearOutSlowInEasing)
+                    )
+                } else {
+                    slideInHorizontally(
+                        initialOffsetX = { -it },
+                        animationSpec = tween(300, 0, LinearOutSlowInEasing)
+                    ) with slideOutHorizontally(
+                        targetOffsetX = { it },
+                        animationSpec = tween(300, 0, LinearOutSlowInEasing)
+                    )
+                }
             }
-            item {
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .padding(top = if (roundState.hasHeader) 0.dp else 44.dp)
+            ) {
+
                 Description(
                     boldDescriptionText = roundState.boldDescriptionText,
                     descriptionText = roundState.descriptionText
@@ -77,12 +102,15 @@ fun SurveyScreen(
                     selectedItems = selectedItems,
                     listType = roundState.listType
                 )
+                Box(modifier = Modifier.weight(1f))
+
+                NextButton(
+                    onNextClick = { viewModel.onNextClick() },
+                    enabled = nextButtonEnabled
+                )
             }
         }
-        NextButton(
-            onNextClick = { viewModel.onNextClick() },
-            enabled = nextButtonEnabled
-        )
+
     }
 }
 
@@ -208,14 +236,26 @@ private fun RectangleOption(
     optionSelected: Boolean,
     item: SurveyItem
 ) {
+    val animatedColor = animateColorAsState(
+        targetValue = if (optionSelected) WhatMealColor.Brand100 else WhatMealColor.Bg20,
+        animationSpec = tween(20, 0, LinearOutSlowInEasing)
+    )
     Box(
         modifier = Modifier
             .then(modifier)
             .width(156.dp)
             .height(110.dp)
             .clip(RoundedCornerShape(18.dp))
-            .clickable { onOptionSelect(item) }
-            .background(if (optionSelected) WhatMealColor.Brand100 else WhatMealColor.Bg20),
+            .clickable(
+                indication = rememberRipple(
+                    color = if (optionSelected) WhatMealColor.Bg20 else WhatMealColor.Brand100
+                ),
+                interactionSource = remember {
+                    MutableInteractionSource()
+                },
+                onClick = { onOptionSelect(item) }
+            )
+            .background(animatedColor.value),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -251,13 +291,25 @@ private fun WideRectangleOption(
     optionSelected: Boolean,
     item: SurveyItem
 ) {
+    val animatedColor = animateColorAsState(
+        targetValue = if (optionSelected) WhatMealColor.Brand100 else WhatMealColor.Bg20,
+        animationSpec = tween(20, 0, LinearOutSlowInEasing)
+    )
     Row(
         modifier = Modifier
             .height(62.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(18.dp))
-            .clickable { onOptionSelect(item) }
-            .background(if (optionSelected) WhatMealColor.Brand100 else WhatMealColor.Bg20),
+            .clickable(
+                indication = rememberRipple(
+                    color = if (optionSelected) WhatMealColor.Bg20 else WhatMealColor.Brand100
+                ),
+                interactionSource = remember {
+                    MutableInteractionSource()
+                },
+                onClick = { onOptionSelect(item) }
+            )
+            .background(animatedColor.value),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (item is SurveyWithIconItem) {
@@ -295,7 +347,10 @@ private fun WideRectangleOptionPreviewNotSelected() = WideRectangleOption(
     item = Standard.PRICE
 )
 
-@ExperimentalFoundationApi
 @Preview
 @Composable
-private fun SurveyPreview() = SurveyScreen(SurveyViewModel())
+fun SurveyPreview(
+    @PreviewParameter(SurveyViewModelPreviewParameterProvider::class) viewModel: SurveyViewModel
+) {
+    SurveyScreen(viewModel)
+}

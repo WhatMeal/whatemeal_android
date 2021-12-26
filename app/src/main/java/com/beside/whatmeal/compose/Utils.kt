@@ -8,14 +8,14 @@ import kotlin.reflect.KProperty
 
 @Composable
 fun <T : Any> rememberSaveableMutableStateListOf(
-    value: List<T>? = null
+    value: List<T>
 ): SnapshotStateList<T> = rememberSaveable(
     saver = listSaver(
         save = { it.toList() },
         restore = { it.toMutableStateList() }
     )
 ) {
-    value?.toMutableStateList() ?: mutableStateListOf()
+    value.toMutableStateList()
 }
 
 @Composable

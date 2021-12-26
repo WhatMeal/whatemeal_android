@@ -2,22 +2,23 @@ package com.beside.whatmeal.main.view
 
 import android.annotation.SuppressLint
 import androidx.annotation.FloatRange
+import androidx.compose.animation.*
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -25,12 +26,13 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.beside.whatmeal.compose.*
 import com.beside.whatmeal.main.uimodel.*
-import com.beside.whatmeal.main.viewmodel.MainViewModel
+import com.beside.whatmeal.main.uimodel.State
+import com.beside.whatmeal.main.viewmodel.MainViewModelInterface as MainViewModel
+import com.beside.whatmeal.main.viewmodel.MainViewModelPreviewParameterProvider
 import com.beside.whatmeal.utils.observeAsNotNullState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@ExperimentalFoundationApi
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun MainScreen(
@@ -40,34 +42,56 @@ fun MainScreen(
 
     var previousRoundState: MainRoundState by rememberSaveableMutableStateOf(MainRoundState.BASIC)
     val roundState: MainRoundState by viewModel.mainRoundState.observeAsNotNullState()
-    val scrollState = rememberLazyListState()
+    val scrollState = rememberScrollState()
     if (previousRoundState != roundState) {
         previousRoundState = roundState
         coroutineScope.launch {
-            scrollState.scrollToItem(0)
+            scrollState.animateScrollTo(0, tween(300, 0, LinearOutSlowInEasing))
         }
     }
 
     val allItems: List<MainItem> by viewModel.allItems.observeAsNotNullState()
     val selectedItems: List<MainItem> by viewModel.selectedItems.observeAsNotNullState()
-    val nextButtonEnabled: Boolean by viewModel.nextButtonEnabled.observeAsNotNullState()
+    val nextButtonEnabled: Boolean = selectedItems.size in 1..roundState.selectableCount
 
     Column(
         modifier = Modifier
             .background(color = WhatMealColor.Bg0)
             .fillMaxSize()
     ) {
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            state = scrollState
-        ) {
-            stickyHeader {
-                Header(
-                    onUpButtonClick = { viewModel.onUpButtonClick() },
-                    isUpButtonVisible = roundState.isUpButtonVisible
-                )
+        if (roundState.hasHeader) {
+            Header(
+                onUpButtonClick = { viewModel.onUpButtonClick() }
+            )
+        }
+        AnimatedContent(
+            targetState = roundState,
+            transitionSpec = {
+                if (targetState.pageOrder > initialState.pageOrder) {
+                    slideInHorizontally(
+                        initialOffsetX = { it },
+                        animationSpec = tween(300, 0, LinearOutSlowInEasing)
+                    ) with slideOutHorizontally(
+                        targetOffsetX = { -it },
+                        animationSpec = tween(300, 0, LinearOutSlowInEasing)
+                    )
+                } else {
+                    slideInHorizontally(
+                        initialOffsetX = { -it },
+                        animationSpec = tween(300, 0, LinearOutSlowInEasing)
+                    ) with slideOutHorizontally(
+                        targetOffsetX = { it },
+                        animationSpec = tween(300, 0, LinearOutSlowInEasing)
+                    )
+                }
             }
-            item {
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .padding(top = if (roundState.hasHeader) 0.dp else 44.dp)
+            ) {
                 Title(text = "Round ${roundState.pageOrder}. ${roundState.titleText}")
                 Progress(roundState.percentage)
                 Description(
@@ -76,22 +100,25 @@ fun MainScreen(
                     descriptionText = roundState.descriptionText
                 )
 
+
+                Box(modifier = Modifier.weight(0.3f))
                 Selector(
                     onOptionSelect = { viewModel.onOptionSelect(it) },
                     modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 20.dp, end = 20.dp, top = 34.dp, bottom = 20.dp)
+                        .padding(start = 20.dp, end = 20.dp, top = 17.dp, bottom = 5.dp)
                         .fillMaxWidth(),
                     optionTextSize = roundState.optionTextSize,
                     allItems = allItems,
                     selectedItems = selectedItems
                 )
+                Box(modifier = Modifier.weight(0.8f))
+
+                NextButton(
+                    onNextClick = { viewModel.onNextClick() },
+                    enabled = nextButtonEnabled
+                )
             }
         }
-        NextButton(
-            onNextClick = { viewModel.onNextClick() },
-            enabled = nextButtonEnabled
-        )
     }
 }
 
@@ -222,9 +249,7 @@ private fun TwoOptionsSelector(
     selectedItems: List<MainItem>
 ) {
     Row(
-        modifier = Modifier
-            .padding(top = 80.dp)
-            .then(modifier),
+        modifier = modifier,
         verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
     ) {
@@ -252,7 +277,7 @@ private fun FourOptionsSelector(
         val (topOption, startOption, bottomOption, endOption, centerDummy) = createRefs()
         Canvas(
             modifier = Modifier.constrainAs(centerDummy) {
-                top.linkTo(parent.top, margin = 157.dp)
+                top.linkTo(parent.top, margin = 158.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
             },
@@ -328,13 +353,25 @@ private fun CircleOption(
     optionTextSize: TextUnit,
     item: MainItem
 ) {
+    val animatedColor = animateColorAsState(
+        targetValue = if (optionSelected) WhatMealColor.Brand100 else WhatMealColor.Bg20,
+        animationSpec = tween(20, 0, LinearOutSlowInEasing)
+    )
     Box(
         modifier = Modifier
             .then(modifier)
             .size(size)
             .clip(CircleShape)
-            .clickable { onOptionSelect(item) }
-            .background(if (optionSelected) WhatMealColor.Brand100 else WhatMealColor.Bg20),
+            .clickable(
+                indication = rememberRipple(
+                    color = if (optionSelected) WhatMealColor.Bg20 else WhatMealColor.Brand100
+                ),
+                interactionSource = remember {
+                    MutableInteractionSource()
+                },
+                onClick = { onOptionSelect(item) }
+            )
+            .background(animatedColor.value),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -356,7 +393,19 @@ private fun CircleOptionPreviewSelected() =
 private fun CircleOptionPreview() =
     CircleOption({}, Modifier, 100.dp, false, 16.sp, State.STRESS)
 
-@ExperimentalFoundationApi
-@Preview
+
+@Preview(heightDp = 750)
 @Composable
-private fun BasicPreview() = MainScreen(MainViewModel())
+private fun BasicPreviewPortrait(
+    @PreviewParameter(MainViewModelPreviewParameterProvider::class) viewModel: MainViewModel
+) {
+    MainScreen(viewModel)
+}
+
+@Preview(widthDp = 1080, heightDp = 800)
+@Composable
+private fun BasicPreviewLandScape(
+    @PreviewParameter(MainViewModelPreviewParameterProvider::class) viewModel: MainViewModel
+) {
+    MainScreen(viewModel)
+}

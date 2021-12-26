@@ -20,23 +20,59 @@ abstract class CommonProgressViewModel : ViewModel() {
         }
     val progressFinishEvent: LiveData<ProgressFinishEvent> = mutableIsProgressFinished
 
-    fun startAutoIncrement(timeMillis: Long) = coroutineScope.launch {
-        withContext(Dispatchers.IO) {
-            val startTime = System.currentTimeMillis()
-            var currentTime = System.currentTimeMillis()
-            while (currentTime - startTime < timeMillis) {
-                mutableAutoIncrementProgress.postValue(
-                    (currentTime - startTime) / timeMillis.toFloat()
-                )
-                delay(DELAY_TIME_MILLIS)
-                currentTime = System.currentTimeMillis()
-            }
-            mutableAutoIncrementProgress.postValue(MAX_PROGRESS)
+    private var isRunning: Boolean = false
+    private var autoIncrementJob: Job? = null
+    private var callback: ProgressFinishedCallback? = null
+
+    fun startAutoIncrementProgress(timeMillis: Long, onFinished: (() -> Unit)) {
+        val progressFinishedCallback = object : ProgressFinishedCallback {
+            override fun onProgressFinished() = onFinished()
         }
+        startAutoIncrementProgress(timeMillis, progressFinishedCallback)
+    }
+
+    fun startAutoIncrementProgress(
+        timeMillis: Long,
+        onFinishedCallBack: ProgressFinishedCallback? = null
+    ) {
+        if (isRunning) {
+            return
+        }
+        init()
+        isRunning = true
+        this.callback = onFinishedCallBack
+
+        autoIncrementJob = coroutineScope.launch {
+            withContext(Dispatchers.IO) {
+                val startTime = System.currentTimeMillis()
+                var currentTime = System.currentTimeMillis()
+                while (currentTime - startTime < timeMillis) {
+                    mutableAutoIncrementProgress.postValue(
+                        (currentTime - startTime) / timeMillis.toFloat()
+                    )
+                    delay(DELAY_TIME_MILLIS)
+                    currentTime = System.currentTimeMillis()
+                }
+                mutableAutoIncrementProgress.postValue(MAX_PROGRESS)
+                isRunning = false
+            }
+        }
+    }
+
+    fun stopAutoIncrementProgress() = init()
+
+    private fun init() {
+        autoIncrementJob?.cancel()
+        autoIncrementJob = null
+        isRunning = false
+        callback = null
+        mutableAutoIncrementProgress.value = START_PROGRESS
+        mutableIsTaskFinished.value = false
     }
 
     private fun createProgressFinishEventOrNull(): ProgressFinishEvent? =
         if (isTaskFinished.value == true && autoIncrementProgress.value == MAX_PROGRESS) {
+            callback?.onProgressFinished()
             ProgressFinishEvent()
         } else {
             null
@@ -46,8 +82,11 @@ abstract class CommonProgressViewModel : ViewModel() {
         private const val START_PROGRESS = 0f
         const val MAX_PROGRESS = 0.99f
 
-        private const val DELAY_TIME_MILLIS = 50L
+        private const val DELAY_TIME_MILLIS = 17L
     }
 
     class ProgressFinishEvent
+    interface ProgressFinishedCallback {
+        fun onProgressFinished()
+    }
 }

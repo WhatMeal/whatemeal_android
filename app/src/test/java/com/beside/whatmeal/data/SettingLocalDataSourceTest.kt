@@ -2,6 +2,7 @@ package com.beside.whatmeal.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.beside.whatmeal.data.local.SettingLocalDataSource
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

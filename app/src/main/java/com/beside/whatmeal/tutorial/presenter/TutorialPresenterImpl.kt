@@ -1,6 +1,6 @@
 package com.beside.whatmeal.tutorial.presenter
 
-import com.beside.whatmeal.data.SettingLocalDataSource
+import com.beside.whatmeal.data.local.SettingLocalDataSource
 import com.beside.whatmeal.tutorial.TutorialActivityInterface
 
 class TutorialPresenterImpl(

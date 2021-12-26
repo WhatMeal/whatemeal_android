@@ -8,7 +8,7 @@ import androidx.compose.ui.unit.sp
 // @TODO: Fix it when figma is updated.
 enum class MainRoundState(
     @IntRange(from = 1) val pageOrder: Int,
-    val isUpButtonVisible: Boolean,
+    val hasHeader: Boolean,
     val titleText: String,
     @FloatRange(from = 0.0, to = 1.0) val percentage: Float,
     @IntRange(from = 0) val selectableCount: Int,
@@ -18,7 +18,7 @@ enum class MainRoundState(
 ) {
     BASIC(
         pageOrder = 1,
-        isUpButtonVisible = false,
+        hasHeader = false,
         titleText = "기본",
         percentage = 0f,
         selectableCount = 2,
@@ -28,7 +28,7 @@ enum class MainRoundState(
     ),
     SOUP(
         pageOrder = 2,
-        isUpButtonVisible = true,
+        hasHeader = true,
         titleText = "국물 여부",
         percentage = 0.2f,
         selectableCount = 1,
@@ -38,7 +38,7 @@ enum class MainRoundState(
     ),
     COOK(
         pageOrder = 3,
-        isUpButtonVisible = true,
+        hasHeader = true,
         titleText = "메인 조리 방법",
         percentage = 0.4f,
         selectableCount = 2,
@@ -48,7 +48,7 @@ enum class MainRoundState(
     ),
     INGREDIENT(
         pageOrder = 4,
-        isUpButtonVisible = true,
+        hasHeader = true,
         titleText = "재료",
         percentage = 0.6f,
         selectableCount = 2,
@@ -58,7 +58,7 @@ enum class MainRoundState(
     ),
     STATE(
         pageOrder = 5,
-        isUpButtonVisible = true,
+        hasHeader = true,
         titleText = "상태",
         percentage = 0.8f,
         selectableCount = 2,

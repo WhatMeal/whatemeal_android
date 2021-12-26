@@ -41,12 +41,13 @@ fun <T : Any> LiveData<T>.observeNotNull(
 
 @Composable
 fun <T : Any> LiveData<T>.observeAsNotNullState(): State<T> =
-    observeAsState(value ?: throw NullPointerException("$value is null!"))
+    observeAsState(value ?: throw NullPointerException("value is null!"))
 
 @Composable
 fun <T : Any> LiveData<List<T>>.observeAsNotNullState(): SnapshotStateList<T> {
     val lifecycleOwner = LocalLifecycleOwner.current
-    val stateList = rememberSaveableMutableStateListOf(this.value)
+    val stateList =
+        rememberSaveableMutableStateListOf(value ?: listOf())
     DisposableEffect(this, lifecycleOwner) {
         val observer = Observer<List<T>> {
             stateList.clear()
