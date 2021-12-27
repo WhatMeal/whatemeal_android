@@ -5,6 +5,7 @@ interface MainItem {
     val id: Int
 }
 
+// @TODO: Please remove the id in the UI data.
 enum class Basic(override val text: String, override val id: Int) : MainItem {
     RICE("밥", 0),
     NOODLE("면", 1),

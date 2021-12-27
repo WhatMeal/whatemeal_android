@@ -14,6 +14,7 @@ import com.beside.whatmeal.main.MainViewActionHandler
 import com.beside.whatmeal.main.uimodel.*
 import kotlinx.coroutines.*
 
+// @TODO: Please add unit test for it.
 class MainViewModel(
     savedState: SavedStateHandle,
     private val actionHandler: MainViewActionHandler

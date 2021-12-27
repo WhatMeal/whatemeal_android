@@ -13,6 +13,8 @@ import java.io.IOException
 import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
+// @TODO: Please consider whether dealing with paging and id is the role of remote data.
+// @TODO: Please add unit test for it.
 object WhatMealRemoteDataSourceImpl : WhatMealRemoteDataSource {
     private const val WHAT_MEAL_URL = "https://whatmeal.herokuapp.com"
 

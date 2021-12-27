@@ -3,6 +3,8 @@ package com.beside.whatmeal.common.progress
 import androidx.lifecycle.*
 import kotlinx.coroutines.*
 
+// @TODO: Please add unit test for it.
+// @TODO: Please modify it to be an independent ViewModel by break the inheritance.
 abstract class CommonProgressViewModel : ViewModel() {
     private val coroutineScope: CoroutineScope = viewModelScope
 

@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+// @TODO: Please modify it so that the ViewModel doesn't know the Activity.
 class SurveyViewActionHandler(private val activity: SurveyActivity) {
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
 

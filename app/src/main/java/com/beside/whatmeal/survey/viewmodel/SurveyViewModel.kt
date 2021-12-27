@@ -5,6 +5,7 @@ import com.beside.whatmeal.survey.SurveyViewActionHandler
 import com.beside.whatmeal.survey.uimodel.*
 import kotlinx.coroutines.*
 
+// @TODO: Please add unit test for it.
 class SurveyViewModel(
     private val actionHandler: SurveyViewActionHandler
 ) : ViewModel(), SurveyViewModelInterface {

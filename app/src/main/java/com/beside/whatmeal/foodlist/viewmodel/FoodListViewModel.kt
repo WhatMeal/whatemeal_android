@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
 
+// @TODO: Please add unit test for it.
 @SuppressLint("NullSafeMutableLiveData")
 class FoodListViewModel(
     savedStateHandle: SavedStateHandle,
@@ -95,6 +96,7 @@ class FoodListViewModel(
         loadNextPageOfFoodListFromRemote()
     }
 
+    // @TODO: Please consider whether this is presenting logic.
     private fun loadNextPageOfFoodListFromRemote() = coroutineScope.launch {
         WhatMealRemoteDataSourceImpl.getNextFoodList().onSuccess {
             // @TODO: Not implemented yet.

@@ -6,7 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-
+// @TODO: Please modify it so that the ViewModel doesn't know the Activity.
 class MainViewActionHandler constructor(
     private val activity: MainActivity
 ) {

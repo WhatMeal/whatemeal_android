@@ -3,6 +3,7 @@ package com.beside.whatmeal.data.local
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 
+// @TODO: Please rename it.
 class SettingLocalDataSource(private val context: Context) {
     fun isTutorialShown(): Boolean =
         context.getSharedPreferences(SETTING_SHARED_PREFERENCE, MODE_PRIVATE)

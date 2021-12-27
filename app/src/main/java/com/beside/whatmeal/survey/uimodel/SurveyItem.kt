@@ -3,8 +3,8 @@ package com.beside.whatmeal.survey.uimodel
 import androidx.annotation.DrawableRes
 import com.beside.whatmeal.R
 
+// @TODO: Please remove the id in the UI data.
 interface SurveyItem {
-
     val text: String
     val id: Int
 }
