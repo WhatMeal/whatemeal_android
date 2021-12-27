@@ -14,7 +14,7 @@ android {
         minSdk 24
         targetSdk 31
         versionCode 1
-        versionName "1.0.0"
+        versionName "0.0.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -56,6 +56,14 @@ android {
         unitTests.returnDefaultValues = true
         unitTests {
             includeAndroidResources = true
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def apk = output.outputFile
+            def newName = apk.name.replace("app", "WhatMeal-${defaultConfig.versionName}-${defaultConfig.versionCode}")
+            output.outputFileName = newName
         }
     }
 }
