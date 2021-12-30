@@ -8,3 +8,6 @@ dependencyResolutionManagement {
 }
 rootProject.name = "WhatMeal"
 include ':app'
+include ':whatmeal-domain'
+include ':whatmeal-data'
+include ':whatmeal-presentation'

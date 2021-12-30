@@ -9,6 +9,10 @@ buildscript {
 
         // NOTE: Please check usages of ExperimentalMaterialApi before bump compose version.
         compose_version = '1.0.5'
+
+        compile_sdk = 31
+        min_sdk = 24
+        target_sdk = 31
     }
     repositories {
         google()
@@ -16,7 +20,7 @@ buildscript {
     }
     dependencies {
         classpath "com.android.tools.build:gradle:7.0.4"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.31"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
     }
 }
