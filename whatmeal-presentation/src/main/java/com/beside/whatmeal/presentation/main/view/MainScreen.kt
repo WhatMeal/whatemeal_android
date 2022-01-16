@@ -3,6 +3,7 @@ package com.beside.whatmeal.presentation.main.view
 import androidx.activity.compose.BackHandler
 import androidx.annotation.FloatRange
 import androidx.compose.animation.*
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
@@ -16,24 +17,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import com.beside.whatmeal.presentation.common.alsoAnimatedScrollToTop
-import com.beside.whatmeal.presentation.main.uimodel.Basic
-import com.beside.whatmeal.presentation.main.uimodel.MainItem
-import com.beside.whatmeal.presentation.main.uimodel.MainRoundState
 import com.beside.whatmeal.presentation.common.resource.WhatMealColor
 import com.beside.whatmeal.presentation.common.resource.WhatMealTextStyle
 import com.beside.whatmeal.presentation.common.view.Header
 import com.beside.whatmeal.presentation.common.view.PrimaryButton
-import com.beside.whatmeal.presentation.common.view.RoundedCornerLinearProgressIndicator
-import com.beside.whatmeal.presentation.main.uimodel.State
+import com.beside.whatmeal.presentation.main.uimodel.*
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(
@@ -45,9 +41,15 @@ fun MainScreen(
     onNextClick: () -> Unit
 ) {
     val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
     BackHandler(
         enabled = roundState.pageOrder != 1,
-        onBack = onUpButtonClick.alsoAnimatedScrollToTop(scrollState)
+        onBack = {
+            coroutineScope.launch {
+                scrollState.animateScrollTo(0, tween(300, 0, LinearOutSlowInEasing))
+            }
+            onUpButtonClick()
+        }
     )
 
     val nextButtonEnabled: Boolean = selectedItems.size in 1..roundState.selectableCount
@@ -59,7 +61,12 @@ fun MainScreen(
     ) {
         if (roundState.hasHeader) {
             Header(
-                onUpButtonClick = onUpButtonClick.alsoAnimatedScrollToTop(scrollState)
+                onUpButtonClick = {
+                    coroutineScope.launch {
+                        scrollState.animateScrollTo(0, tween(300, 0, LinearOutSlowInEasing))
+                    }
+                    onUpButtonClick()
+                }
             )
         }
         AnimatedContent(
@@ -67,19 +74,19 @@ fun MainScreen(
             transitionSpec = {
                 if (targetState.pageOrder > initialState.pageOrder) {
                     slideInHorizontally(
-                        initialOffsetX = { it },
-                        animationSpec = tween(300, 0, LinearOutSlowInEasing)
+                        initialOffsetX = { it * 3 },
+                        animationSpec = tween(300, 0, FastOutSlowInEasing)
                     ) with slideOutHorizontally(
-                        targetOffsetX = { -it },
-                        animationSpec = tween(300, 0, LinearOutSlowInEasing)
+                        targetOffsetX = { -it * 3 },
+                        animationSpec = tween(0, 0, FastOutSlowInEasing)
                     )
                 } else {
                     slideInHorizontally(
-                        initialOffsetX = { -it },
-                        animationSpec = tween(300, 0, LinearOutSlowInEasing)
+                        initialOffsetX = { -it * 3 },
+                        animationSpec = tween(300, 0, FastOutSlowInEasing)
                     ) with slideOutHorizontally(
-                        targetOffsetX = { it },
-                        animationSpec = tween(300, 0, LinearOutSlowInEasing)
+                        targetOffsetX = { it * 3 },
+                        animationSpec = tween(0, 0, FastOutSlowInEasing)
                     )
                 }
             }
@@ -90,7 +97,6 @@ fun MainScreen(
                     .verticalScroll(scrollState)
                     .padding(top = if (roundState.hasHeader) 0.dp else 44.dp)
             ) {
-                Title(text = "Round ${roundState.pageOrder}. ${roundState.titleText}")
                 Progress(roundState.percentage)
                 Description(
                     multiSelectableNoteVisible = roundState.selectableCount > 1,
@@ -99,20 +105,25 @@ fun MainScreen(
                 )
 
 
-                Box(modifier = Modifier.weight(0.3f))
+                Box(modifier = Modifier.weight(0.5f))
                 Selector(
                     onOptionSelect = onOptionSelect,
                     modifier = Modifier
                         .padding(start = 20.dp, end = 20.dp, top = 17.dp, bottom = 5.dp)
                         .fillMaxWidth(),
-                    optionTextSize = roundState.optionTextSize,
+                    selectedOptionColor = roundState.selectedOptionColor,
                     allItems = allItems,
                     selectedItems = selectedItems
                 )
-                Box(modifier = Modifier.weight(0.8f))
+                Box(modifier = Modifier.weight(0.5f))
 
                 NextButton(
-                    onNextClick = onNextClick.alsoAnimatedScrollToTop(scrollState),
+                    onNextClick = {
+                        coroutineScope.launch {
+                            scrollState.animateScrollTo(0, tween(300, 0, LinearOutSlowInEasing))
+                        }
+                        onNextClick()
+                    },
                     enabled = nextButtonEnabled
                 )
             }
@@ -121,37 +132,14 @@ fun MainScreen(
 }
 
 @Composable
-private fun Title(text: String) =
-    Text(
-        text = text,
-        color = Color(0xFF4D4F52),
-        style = WhatMealTextStyle.Medium,
-        fontSize = 21.sp,
-        modifier = Modifier
-            .padding(top = 24.dp, start = 20.dp, end = 20.dp)
-            .fillMaxWidth()
-    )
-
-@Composable
 private fun Progress(@FloatRange(from = 0.0, to = 1.0) percentage: Float) {
-    RoundedCornerLinearProgressIndicator(
+    LinearProgressIndicator(
         progress = percentage,
         modifier = Modifier
-            .padding(top = 14.dp, start = 20.dp, end = 20.dp)
             .height(8.dp)
             .fillMaxWidth(),
         color = WhatMealColor.Bg100,
         backgroundColor = Color(0xFFC4C4C4)
-    )
-    Text(
-        text = "${(percentage * 100).toInt()}%",
-        color = Color(0xFF000000),
-        style = WhatMealTextStyle.Bold,
-        fontSize = 12.sp,
-        textAlign = TextAlign.End,
-        modifier = Modifier
-            .padding(start = 20.dp, end = 20.dp)
-            .fillMaxWidth()
     )
 }
 
@@ -179,7 +167,7 @@ private fun Description(
         fontSize = 21.sp,
         lineHeight = 31.sp,
         modifier = Modifier
-            .padding(top = 8.dp, start = 20.dp, end = 20.dp)
+            .padding(top = 32.dp, start = 20.dp, end = 20.dp)
             .fillMaxWidth()
     )
     Text(
@@ -187,9 +175,9 @@ private fun Description(
         color = WhatMealColor.Gray1,
         style = WhatMealTextStyle.Regular,
         fontSize = 14.sp,
-        lineHeight = 25.sp,
+        lineHeight = 22.sp,
         modifier = Modifier
-            .padding(top = 5.dp, start = 20.dp, end = 20.dp)
+            .padding(top = 13.dp, start = 20.dp, end = 20.dp)
             .fillMaxWidth()
     )
 }
@@ -208,7 +196,7 @@ private fun NextButton(
 private fun Selector(
     onOptionSelect: (MainItem) -> Unit,
     modifier: Modifier,
-    optionTextSize: TextUnit,
+    selectedOptionColor: Color,
     allItems: List<MainItem>,
     selectedItems: List<MainItem>
 ) {
@@ -216,21 +204,21 @@ private fun Selector(
         2 -> TwoOptionsSelector(
             onOptionSelect = onOptionSelect,
             modifier = modifier,
-            optionTextSize = optionTextSize,
+            selectedOptionColor = selectedOptionColor,
             allItems = allItems,
             selectedItems = selectedItems
         )
         4 -> FourOptionsSelector(
             onOptionSelect = onOptionSelect,
             modifier = modifier,
-            optionTextSize = optionTextSize,
+            selectedOptionColor = selectedOptionColor,
             allItems = allItems,
             selectedItems = selectedItems
         )
         7 -> SevenOptionsSelector(
             onOptionSelect = onOptionSelect,
             modifier = modifier,
-            optionTextSize = optionTextSize,
+            selectedOptionColor = selectedOptionColor,
             allItems = allItems,
             selectedItems = selectedItems
         )
@@ -242,7 +230,7 @@ private fun Selector(
 private fun TwoOptionsSelector(
     onOptionSelect: (MainItem) -> Unit,
     modifier: Modifier,
-    optionTextSize: TextUnit,
+    selectedOptionColor: Color,
     allItems: List<MainItem>,
     selectedItems: List<MainItem>
 ) {
@@ -254,9 +242,9 @@ private fun TwoOptionsSelector(
         allItems.forEach { mainItem ->
             CircleOption(
                 onOptionSelect = onOptionSelect,
-                size = 124.dp,
+                size = 120.dp,
                 optionSelected = selectedItems.contains(mainItem),
-                optionTextSize = optionTextSize,
+                selectedOptionColor = selectedOptionColor,
                 item = mainItem
             )
         }
@@ -267,36 +255,49 @@ private fun TwoOptionsSelector(
 private fun FourOptionsSelector(
     onOptionSelect: (MainItem) -> Unit,
     modifier: Modifier,
-    optionTextSize: TextUnit,
+    selectedOptionColor: Color,
     allItems: List<MainItem>,
     selectedItems: List<MainItem>
 ) {
-    ConstraintLayout(modifier = modifier) {
-        val (topOption, startOption, bottomOption, endOption, centerDummy) = createRefs()
-        Canvas(
-            modifier = Modifier.constrainAs(centerDummy) {
-                top.linkTo(parent.top, margin = 158.dp)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            },
-            onDraw = { /* Do nothing */ }
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.Top,
+        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
+    ) {
+        CircleOption(
+            onOptionSelect = onOptionSelect,
+            size = 120.dp,
+            optionSelected = selectedItems.contains(allItems[0]),
+            selectedOptionColor = selectedOptionColor,
+            item = allItems[0]
         )
-        val fourOptionsModifierArray = arrayOf(
-            Modifier.constrainAs(topOption) { circular(centerDummy, 0f, 100.dp) },
-            Modifier.constrainAs(startOption) { circular(centerDummy, 270f, 102.dp) },
-            Modifier.constrainAs(bottomOption) { circular(centerDummy, 180f, 100.dp) },
-            Modifier.constrainAs(endOption) { circular(centerDummy, 90f, 102.dp) },
+        CircleOption(
+            onOptionSelect = onOptionSelect,
+            size = 120.dp,
+            optionSelected = selectedItems.contains(allItems[1]),
+            selectedOptionColor = selectedOptionColor,
+            item = allItems[1]
         )
-        allItems.forEachIndexed { index, mainItem ->
-            CircleOption(
-                onOptionSelect = onOptionSelect,
-                modifier = fourOptionsModifierArray[index],
-                size = 116.dp,
-                optionSelected = selectedItems.contains(mainItem),
-                optionTextSize = optionTextSize,
-                item = mainItem
-            )
-        }
+    }
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.Top,
+        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
+    ) {
+        CircleOption(
+            onOptionSelect = onOptionSelect,
+            size = 120.dp,
+            optionSelected = selectedItems.contains(allItems[2]),
+            selectedOptionColor = selectedOptionColor,
+            item = allItems[2]
+        )
+        CircleOption(
+            onOptionSelect = onOptionSelect,
+            size = 120.dp,
+            optionSelected = selectedItems.contains(allItems[3]),
+            selectedOptionColor = selectedOptionColor,
+            item = allItems[3]
+        )
     }
 }
 
@@ -304,7 +305,7 @@ private fun FourOptionsSelector(
 private fun SevenOptionsSelector(
     onOptionSelect: (MainItem) -> Unit,
     modifier: Modifier,
-    optionTextSize: TextUnit,
+    selectedOptionColor: Color,
     allItems: List<MainItem>,
     selectedItems: List<MainItem>
 ) {
@@ -335,7 +336,7 @@ private fun SevenOptionsSelector(
                 modifier = sevenOptionsModifierArray[index],
                 size = 100.dp,
                 optionSelected = selectedItems.contains(mainItem),
-                optionTextSize = optionTextSize,
+                selectedOptionColor = selectedOptionColor,
                 item = mainItem
             )
         }
@@ -348,11 +349,11 @@ private fun CircleOption(
     modifier: Modifier = Modifier,
     size: Dp,
     optionSelected: Boolean,
-    optionTextSize: TextUnit,
+    selectedOptionColor: Color,
     item: MainItem
 ) {
     val animatedColor = animateColorAsState(
-        targetValue = if (optionSelected) WhatMealColor.Brand100 else WhatMealColor.Bg20,
+        targetValue = if (optionSelected) selectedOptionColor else WhatMealColor.Bg20,
         animationSpec = tween(20, 0, LinearOutSlowInEasing)
     )
     Box(
@@ -362,7 +363,7 @@ private fun CircleOption(
             .clip(CircleShape)
             .clickable(
                 indication = rememberRipple(
-                    color = if (optionSelected) WhatMealColor.Bg20 else WhatMealColor.Brand100
+                    color = if (optionSelected) WhatMealColor.Bg20 else selectedOptionColor
                 ),
                 interactionSource = remember {
                     MutableInteractionSource()
@@ -372,25 +373,29 @@ private fun CircleOption(
             .background(animatedColor.value),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = item.text,
-            style = WhatMealTextStyle.Medium,
-            fontSize = optionTextSize,
-            color = if (optionSelected) Color.White else Color.Black
-        )
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (item is MainWithIconItem) {
+                Image(
+                    painter = painterResource(id = item.iconDrawableRes),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(bottom = 4.dp)
+                )
+            }
+            Text(
+                text = item.text,
+                style = WhatMealTextStyle.Medium,
+                fontSize = 16.sp,
+                color = Color.Black
+            )
+        }
     }
 }
-
-@Preview
-@Composable
-private fun CircleOptionPreviewSelected() =
-    CircleOption({}, Modifier, 100.dp, true, 21.sp, Basic.BREAD)
-
-@Preview
-@Composable
-private fun CircleOptionPreview() =
-    CircleOption({}, Modifier, 100.dp, false, 16.sp, State.STRESS)
-
 
 @Preview(heightDp = 750)
 @Composable

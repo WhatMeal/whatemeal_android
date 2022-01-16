@@ -30,24 +30,28 @@ class MapWebViewClient(private val activity: MapActivity) : WebViewClient() {
         Log.d(TAG, "shouldOverrideUrlLoading url: $url")
 
         return when {
-            // @TODO: We meed to handle naver map intent.
-            //      intent://route?dlat=37.5713506&dlng=126.9749617&did=11678778&dname=%EA%B4%91%ED%99%94%EB%AC%B8%EC%A7%91&appname=https%3A%2F%2Fm.place.naver.com%2Frestaurant%2F11678778%2Fhome#Intent;scheme=nmap;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;package=com.nhn.android.nmap;S.browser_fallback_url=https%3A%2F%2Fm.search.naver.com%2Fsearch.naver%3Fwhere%3Dm%26query%3D%25EB%25B9%25A0%25EB%25A5%25B8%25EA%25B8%25B8%25EC%25B0%25BE%25EA%25B8%25B0%26nso_path%3DplaceType%255Eplace%253Bname%255E%253Baddress%255E%253Blatitude%255E%253Blongitude%255E%253Bcode%255E%257Ctype%255Eplace%253Bname%255E%25EA%25B4%2591%25ED%2599%2594%25EB%25AC%25B8%25EC%25A7%2591%253Baddress%255E%253Bcode%255E11678778%253Blongitude%255E126.9749617%253Blatitude%255E37.5713506%257Cobjtype%255Epath%253Bby%255Epubtrans;end
             url.startsWith("http:") || url.startsWith("https:") -> false
-            url.startsWith("intent:") || url.startsWith("tel:") -> {
+            url.startsWith("tel:") -> {
                 val intent = Intent(Intent.ACTION_VIEW).setData(Uri.parse(url))
                 activity.startActivity(intent)
                 true
             }
+            url.startsWith("intent:") -> {
+                Log.e(TAG, "test - intent $url")
+                val parsedIntent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
+                val packageName = parsedIntent.`package` ?: return true
+                val intent = activity.packageManager.getLaunchIntentForPackage(packageName)
+                    ?: Intent(Intent.ACTION_VIEW)
+                        .setData(Uri.parse("market://details?id=$packageName"))
+                Log.e(TAG, "test $parsedIntent $packageName $intent")
+                activity.startActivity(intent)
+                return true
+            }
             else -> {
-                Log.e(TAG, "onPageCommitVisible - unsupported scheme: $url")
+                Log.e(TAG, "shouldOverrideUrlLoading - unsupported scheme: $url")
                 true
             }
         }
-    }
-
-    override fun onPageCommitVisible(view: WebView?, url: String?) {
-        Log.i(TAG, "onPageCommitVisible url: ${url.toString()}")
-
     }
 
     override fun onPageFinished(view: WebView?, url: String?) {

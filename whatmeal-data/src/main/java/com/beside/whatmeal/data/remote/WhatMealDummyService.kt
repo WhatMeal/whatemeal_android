@@ -1,5 +1,6 @@
 package com.beside.whatmeal.data.remote
 
+import android.util.Log
 import com.beside.whatmeal.data.remote.remotemodel.FoodData
 import com.beside.whatmeal.data.remote.remotemodel.response.LoadFoodListResponse
 import com.beside.whatmeal.data.remote.remotemodel.response.LoadMapUrlResponse
@@ -75,7 +76,7 @@ object WhatMealDummyService {
         )
     )
 
-    fun requestTrackingId(): RegisterTrackingIdResponse = RegisterTrackingIdResponse("TEST_ID")
+    fun requestTrackingId(): RegisterTrackingIdResponse = RegisterTrackingIdResponse(1)
 
     fun getFoodList(
         pages: Int
@@ -85,7 +86,8 @@ object WhatMealDummyService {
         hasNext = pages <= 2
     )
 
-    fun loadMapUrlBy(foodName: String): LoadMapUrlResponse = LoadMapUrlResponse(
-        "https://m.map.naver.com/search2/search.naver?query=$foodName&style=v5#/map/1"
-    )
+    fun loadMapUrlBy(foodName: String, latitude: String, longitude: String): LoadMapUrlResponse =
+        LoadMapUrlResponse(
+            "https://m.map.naver.com/search2/search.naver?query=$foodName&style=v5&sm=clk&centerCoord=$latitude:$longitude#/map/1"
+        ).also { Log.d("TEST", "$foodName $latitude $longitude") }
 }

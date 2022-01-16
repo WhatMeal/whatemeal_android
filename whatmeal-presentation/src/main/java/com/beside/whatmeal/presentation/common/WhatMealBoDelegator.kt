@@ -26,11 +26,13 @@ class WhatMealBoDelegator private constructor(private val domainBo: WhatMealBo) 
     suspend fun registerTrackingId(
         age: Age,
         mealTime: MealTime,
-        standards: List<Standard>
+        standard1: Standard,
+        standard2: Standard
     ): Result<Unit> = domainBo.registerTrackingId(
         age.toDomainModel(),
         mealTime.toDomainModel(),
-        standards.map { it.toDomainModel() }
+        standard1.toDomainModel(),
+        standard2.toDomainModel()
     )
 
     @AnyThread
@@ -57,8 +59,8 @@ class WhatMealBoDelegator private constructor(private val domainBo: WhatMealBo) 
 
     @AnyThread
     suspend fun loadMapUri(
-        latitude: Double,
-        longitude: Double,
+        latitude: String,
+        longitude: String,
         foodName: String
     ): Result<String> = domainBo.loadMapUri(latitude, longitude, foodName)
 

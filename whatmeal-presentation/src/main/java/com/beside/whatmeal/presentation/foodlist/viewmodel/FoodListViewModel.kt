@@ -56,10 +56,11 @@ class FoodListViewModel(
     }
 
     fun onRefreshClick() {
-        if (pagingState.value != FoodListPagingState.HAS_NEXT) {
+        if (pagingState.value == FoodListPagingState.LOADING) {
             return
         }
         mutablePagingState.value = FoodListPagingState.LOADING
+        mutableSelectedFoodItem.value = null
         loadNextPageOfFoodListFromRemote()
     }
 
@@ -108,6 +109,7 @@ class FoodListViewModel(
             pagingItem = it.pagingItem
             mutableIsTaskFinished.value = true
         }.onFailure {
+            // @TODO: We should properly inform the user of the error situation.
             Log.e(TAG, "Fail to loadFoodListFromRemote", it)
             mutableFoodListViewAction.post(FoodListViewAction.FailToLoadFoodListOnFirst)
             stopAutoIncrementProgress()
@@ -119,7 +121,7 @@ class FoodListViewModel(
     }
 
     private fun loadNextPageOfFoodListFromRemote() = coroutineScope.launch {
-        if (!this@FoodListViewModel::pagingItem.isInitialized || !pagingItem.hasNext) {
+        if (!this@FoodListViewModel::pagingItem.isInitialized) {
             mutablePagingState.value = FoodListPagingState.NO_NEXT
             return@launch
         }
@@ -135,6 +137,7 @@ class FoodListViewModel(
                 }
                 pagingItem = it.pagingItem
             }.onFailure {
+                // @TODO: We should properly inform the user of the error situation.
                 Log.e(TAG, "Fail to loadNextPageOfFoodListFromRemote", it)
                 mutablePagingState.value = FoodListPagingState.HAS_NEXT
             }

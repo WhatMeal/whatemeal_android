@@ -1,11 +1,11 @@
 package com.beside.whatmeal.domain.common
 
 object TrackingManager {
-    private var trackingId: String? = null
+    private var trackingId: Int? = null
 
-    fun holdTrackingId(id: String) {
+    fun holdTrackingId(id: Int) {
         trackingId = id
     }
 
-    fun getTrackingId(): String = trackingId ?: throw IllegalStateException()
+    fun getTrackingId(): Int = trackingId ?: throw IllegalStateException()
 }

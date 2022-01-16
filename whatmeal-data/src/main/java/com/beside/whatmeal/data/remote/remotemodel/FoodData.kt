@@ -1,3 +1,8 @@
 package com.beside.whatmeal.data.remote.remotemodel
 
-data class FoodData(val name: String, val imageUrl: String)
+import com.google.gson.annotations.SerializedName
+
+data class FoodData(
+    @SerializedName("food") val name: String,
+    @SerializedName("imgSrc") val imageUrl: String
+)

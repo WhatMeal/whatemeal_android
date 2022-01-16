@@ -65,5 +65,6 @@ class MainActivity : ComponentActivity() {
             )
             startActivity(intent)
         }
+        is MainViewAction.FailToRegisterTrackingId -> finish()
     }
 }

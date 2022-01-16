@@ -4,6 +4,7 @@ sealed class SurveyViewAction {
     data class StartMainScreen(
         val age: Age,
         val mealTime: MealTime,
-        val standards: List<Standard>
+        val standard1: Standard,
+        val standard2: Standard
     ) : SurveyViewAction()
 }

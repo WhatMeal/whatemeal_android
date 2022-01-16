@@ -24,9 +24,9 @@ object WhatMealRemoteDataSourceImpl : WhatMealRemoteDataSource {
 
     private val okHttpClient: OkHttpClient = OkHttpClient.Builder()
         .addInterceptor(loggingInterceptor)
-        .connectTimeout(5, TimeUnit.SECONDS)
-        .readTimeout(5, TimeUnit.SECONDS)
-        .writeTimeout(5, TimeUnit.SECONDS)
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(15, TimeUnit.SECONDS)
+        .writeTimeout(15, TimeUnit.SECONDS)
         .retryOnConnectionFailure(true)
         .build()
 
@@ -43,9 +43,15 @@ object WhatMealRemoteDataSourceImpl : WhatMealRemoteDataSource {
     override fun registerTrackingId(
         request: RegisterTrackingIdRequest
     ): Result<RegisterTrackingIdResponse> = runCatchIOException {
-        // TODO: Not implemented yet.
         Thread.sleep((Math.random() * 2000).toLong())
         Result.success(WhatMealDummyService.requestTrackingId())
+//        val retrofitResponse = whatMealService.postOnBoarding(request).execute()
+//        val body = retrofitResponse.body()
+//        return@runCatchIOException if (retrofitResponse.isSuccessful && body != null) {
+//            Result.success(body)
+//        } else {
+//            Result.failure(WhatMealRemoteException())
+//        }
     }
 
     override fun loadFoodList(request: LoadFoodListRequest): Result<LoadFoodListResponse> =
@@ -53,8 +59,7 @@ object WhatMealRemoteDataSourceImpl : WhatMealRemoteDataSource {
             val retrofitResponse = whatMealService.getFoodList(request).execute()
             val body = retrofitResponse.body()
             return@runCatchIOException if (retrofitResponse.isSuccessful && body != null) {
-                // TODO: Not implemented yet.
-                //  Result.success(body)
+//                Result.success(body)
                 Result.success(WhatMealDummyService.getFoodList(request.pages))
             } else {
                 Result.failure(WhatMealRemoteException())
@@ -63,9 +68,21 @@ object WhatMealRemoteDataSourceImpl : WhatMealRemoteDataSource {
 
     override fun loadMapUrl(request: LoadMapUrlRequest): Result<LoadMapUrlResponse> =
         runCatchIOException {
-            // TODO: Not implemented yet.
             Thread.sleep((Math.random() * 1500).toLong())
-            Result.success(WhatMealDummyService.loadMapUrlBy(request.foodName))
+            Result.success(
+                WhatMealDummyService.loadMapUrlBy(
+                    request.foodName,
+                    request.latitude,
+                    request.longitude
+                )
+            )
+//            val retrofitResponse = whatMealService.putFinalFood(request).execute()
+//            val body = retrofitResponse.body()
+//            return@runCatchIOException if (retrofitResponse.isSuccessful && body != null) {
+//                Result.success(body)
+//            } else {
+//                Result.failure(WhatMealRemoteException())
+//            }
         }
 
     private fun <T> runCatchIOException(block: () -> Result<T>): Result<T> = try {

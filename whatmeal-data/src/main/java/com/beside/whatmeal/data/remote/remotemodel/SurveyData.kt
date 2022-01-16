@@ -1,28 +1,28 @@
 package com.beside.whatmeal.data.remote.remotemodel
 
 interface SurveyData {
-    val id: Int
+    val id: String
 }
 
-enum class Age(override val id: Int) : SurveyData {
-    TEENAGE(0),
-    TWENTIES(1),
-    THIRTIES(2),
-    FORTIES(3),
-    OVER_FIFTY(4),
-    PRIVATE(5)
+enum class Age(override val id: String) : SurveyData {
+    TEENAGE("10"),
+    TWENTIES("20대"),
+    THIRTIES("30대"),
+    FORTIES("40대"),
+    OVER_FIFTY("50대 이상"),
+    PRIVATE("선택하지 않음")
 }
 
-enum class MealTime(override val id: Int) : SurveyData {
-    BREAKFAST(0),
-    LUNCH(1),
-    DINNER(2)
+enum class MealTime(override val id: String) : SurveyData {
+    BREAKFAST("아침 식사"),
+    LUNCH("점심 식사"),
+    DINNER("저녁 식사")
 }
 
-enum class Standard(override val id: Int) : SurveyData {
-    TASTE(0),
-    PRICE(1),
-    TIME(2),
-    REVIEW(3),
-    PERSON(4)
+enum class Standard(override val id: String) : SurveyData {
+    TASTE("맛"),
+    PRICE("가격"),
+    TIME("시간"),
+    REVIEW("리뷰"),
+    PERSON("함께 먹는 사람")
 }

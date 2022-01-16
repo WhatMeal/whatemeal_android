@@ -12,7 +12,8 @@ class RegisterTrackingIdTask(
     private val repository: WhatMealRepositoryInterface,
     private val age: Age,
     private val mealTime: MealTime,
-    private val standards: List<Standard>
+    private val standard1: Standard,
+    private val standard2: Standard
 ) : Task<Result<Unit>>() {
     private val trackingManager = TrackingManager
 
@@ -21,7 +22,8 @@ class RegisterTrackingIdTask(
         repository.registerTrackingId(
             age,
             mealTime,
-            standards
+            standard1,
+            standard2
         ).map {
             trackingManager.holdTrackingId(it)
         }

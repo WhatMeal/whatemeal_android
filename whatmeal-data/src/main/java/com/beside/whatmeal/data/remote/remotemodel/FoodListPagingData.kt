@@ -28,7 +28,7 @@ fun FoodListPagingData.copyBy(response: LoadFoodListResponse): FoodListPagingDat
     val nextRequest = if (response.hasNext) {
         nextRequest?.copy(pages = response.page + 1)
     } else {
-        null
+        nextRequest?.copy(pages = 1)
     }
     return FoodListPagingData(
         nextRequest, response.hasNext

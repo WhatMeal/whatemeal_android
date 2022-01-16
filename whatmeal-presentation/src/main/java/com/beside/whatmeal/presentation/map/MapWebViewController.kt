@@ -8,6 +8,7 @@ import android.webkit.WebView
 class MapWebViewController(private val webView: WebView, activity: MapActivity) {
 
     init {
+        webView.alpha = 0f
         webView.settings.javaScriptEnabled = true
         webView.settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         webView.settings.setGeolocationEnabled(true)
@@ -23,7 +24,6 @@ class MapWebViewController(private val webView: WebView, activity: MapActivity) 
     }
 
     fun loadUrl(url: String) {
-        webView.alpha = 0f
         webView.loadUrl(url)
         fadeIn()
     }

@@ -2,6 +2,7 @@ package com.beside.whatmeal.presentation.survey.view
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
@@ -20,12 +21,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.beside.whatmeal.presentation.common.alsoAnimatedScrollToTop
 import com.beside.whatmeal.presentation.survey.uimodel.*
 import com.beside.whatmeal.presentation.common.resource.WhatMealColor
 import com.beside.whatmeal.presentation.common.resource.WhatMealTextStyle
 import com.beside.whatmeal.presentation.common.view.Header
 import com.beside.whatmeal.presentation.common.view.PrimaryButton
+import kotlinx.coroutines.launch
 
 @Composable
 fun SurveyScreen(
@@ -37,9 +38,15 @@ fun SurveyScreen(
     onNextClick: () -> Unit
 ) {
     val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
     BackHandler(
         enabled = roundState.pageOrder != 1,
-        onBack = onUpButtonClick.alsoAnimatedScrollToTop(scrollState)
+        onBack = {
+            coroutineScope.launch {
+                scrollState.animateScrollTo(0, tween(300, 0, LinearOutSlowInEasing))
+            }
+            onUpButtonClick()
+        }
     )
 
     val nextButtonEnabled: Boolean = selectedItems.size == roundState.necessarySelectionCount
@@ -50,26 +57,33 @@ fun SurveyScreen(
             .background(WhatMealColor.Bg0)
     ) {
         if (roundState.hasHeader) {
-            Header(onUpButtonClick = onUpButtonClick.alsoAnimatedScrollToTop(scrollState))
+            Header(
+                onUpButtonClick = {
+                    coroutineScope.launch {
+                        scrollState.animateScrollTo(0, tween(300, 0, LinearOutSlowInEasing))
+                    }
+                    onUpButtonClick()
+                }
+            )
         }
         AnimatedContent(
             targetState = roundState,
             transitionSpec = {
                 if (targetState.pageOrder > initialState.pageOrder) {
                     slideInHorizontally(
-                        initialOffsetX = { it },
-                        animationSpec = tween(300, 0, LinearOutSlowInEasing)
+                        initialOffsetX = { it * 3 },
+                        animationSpec = tween(300, 0, FastOutSlowInEasing)
                     ) with slideOutHorizontally(
-                        targetOffsetX = { -it },
-                        animationSpec = tween(300, 0, LinearOutSlowInEasing)
+                        targetOffsetX = { -it * 3 },
+                        animationSpec = tween(0, 0, FastOutSlowInEasing)
                     )
                 } else {
                     slideInHorizontally(
-                        initialOffsetX = { -it },
-                        animationSpec = tween(300, 0, LinearOutSlowInEasing)
+                        initialOffsetX = { -it * 3 },
+                        animationSpec = tween(300, 0, FastOutSlowInEasing)
                     ) with slideOutHorizontally(
-                        targetOffsetX = { it },
-                        animationSpec = tween(300, 0, LinearOutSlowInEasing)
+                        targetOffsetX = { it * 3 },
+                        animationSpec = tween(0, 0, FastOutSlowInEasing)
                     )
                 }
             }
@@ -88,7 +102,7 @@ fun SurveyScreen(
                 Selector(
                     onOptionSelect = onOptionSelect,
                     modifier = Modifier
-                        .padding(start = 24.dp, end = 24.dp, top = 48.dp, bottom = 20.dp)
+                        .padding(start = 24.dp, end = 24.dp, top = 30.dp, bottom = 20.dp)
                         .fillMaxWidth(),
                     allItems = allItems,
                     selectedItems = selectedItems,
@@ -97,7 +111,12 @@ fun SurveyScreen(
                 Box(modifier = Modifier.weight(1f))
 
                 NextButton(
-                    onNextClick = onNextClick.alsoAnimatedScrollToTop(scrollState),
+                    onNextClick = {
+                        coroutineScope.launch {
+                            scrollState.animateScrollTo(0, tween(300, 0, LinearOutSlowInEasing))
+                        }
+                        onNextClick()
+                    },
                     enabled = nextButtonEnabled
                 )
             }
@@ -125,7 +144,7 @@ private fun Description(
         color = WhatMealColor.Gray1,
         style = WhatMealTextStyle.Regular,
         fontSize = 14.sp,
-        lineHeight = 25.sp,
+        lineHeight = 22.sp,
         modifier = Modifier
             .padding(top = 14.dp, start = 24.dp, end = 24.dp)
             .fillMaxWidth()

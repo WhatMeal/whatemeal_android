@@ -1,19 +1,17 @@
 package com.beside.whatmeal.data.remote
 
 import com.beside.whatmeal.data.remote.remotemodel.request.LoadFoodListRequest
+import com.beside.whatmeal.data.remote.remotemodel.request.LoadMapUrlRequest
+import com.beside.whatmeal.data.remote.remotemodel.request.RegisterTrackingIdRequest
 import com.beside.whatmeal.data.remote.remotemodel.response.LoadFoodListResponse
+import com.beside.whatmeal.data.remote.remotemodel.response.LoadMapUrlResponse
+import com.beside.whatmeal.data.remote.remotemodel.response.RegisterTrackingIdResponse
 import retrofit2.Call
 import retrofit2.http.*
 
 interface WhatMealRetrofitService {
-    // @TODO: Not implemented yet.
     @POST("infos/onboarding")
-    fun postOnBoarding(
-        @Field("age") age: String,
-        @Field("mealTime") mealTime: String,
-        @Field("standard1") standard1: String,
-        @Field("Standard2") standard2: String
-    )
+    fun postOnBoarding(@Body request: RegisterTrackingIdRequest): Call<RegisterTrackingIdResponse>
 
     @GET("foods")
     fun getFoodList(
@@ -25,12 +23,8 @@ interface WhatMealRetrofitService {
         @Query("pages") pages: Int
     ): Call<LoadFoodListResponse>
 
-    // @TODO: Not implemented yet.
     @PUT("infos/finalfood")
-    fun putFinalFood(
-        @Field("id") id: Int,
-        @Field("foodName") foodName: String
-    )
+    fun putFinalFood(@Body request: LoadMapUrlRequest): Call<LoadMapUrlResponse>
 }
 
 fun WhatMealRetrofitService.getFoodList(request: LoadFoodListRequest) = getFoodList(

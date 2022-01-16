@@ -1,6 +1,7 @@
 package com.beside.whatmeal.data
 
 import android.content.Context
+import android.util.Log
 import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
 import com.beside.whatmeal.data.local.WhatMealLocalDataSource
@@ -27,9 +28,10 @@ class WhatMealRepository private constructor(
     fun registerTrackingId(
         age: Age,
         mealTime: MealTime,
-        standards: List<Standard>
-    ): Result<String> {
-        val request = RegisterTrackingIdRequest(age, mealTime, standards)
+        standard1: Standard,
+        standard2: Standard
+    ): Result<Int> {
+        val request = RegisterTrackingIdRequest(age.id, mealTime.id, standard1.id, standard2.id)
         return remoteDataSource.registerTrackingId(request).map { it.id }
     }
 
@@ -56,10 +58,7 @@ class WhatMealRepository private constructor(
 
     @WorkerThread
     fun loadNextPageFoodList(pagingData: FoodListPagingData): Result<PagedFoodListData> {
-        val (nextRequest, hasNext) = pagingData
-        if (nextRequest == null || !hasNext) {
-            return Result.failure(IllegalStateException())
-        }
+        val nextRequest = pagingData.nextRequest ?: return Result.failure(IllegalStateException())
 
         return remoteDataSource.loadFoodList(nextRequest).map {
             val nextPagingData = pagingData.copyBy(it)
@@ -69,9 +68,9 @@ class WhatMealRepository private constructor(
 
     @WorkerThread
     fun loadMapUrl(
-        trackingId: String,
-        latitude: Double,
-        longitude: Double,
+        trackingId: Int,
+        latitude: String,
+        longitude: String,
         foodName: String
     ): Result<String> {
         val request = LoadMapUrlRequest(trackingId, latitude, longitude, foodName)

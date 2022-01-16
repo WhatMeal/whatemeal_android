@@ -16,16 +16,12 @@ import kotlinx.coroutines.launch
 class MapViewModel(
     private val whatMealBo: WhatMealBoDelegator,
     private val webViewController: MapWebViewController,
-    savedState: SavedStateHandle
+    private val savedState: SavedStateHandle
 ) : ViewModel() {
     private val coroutineScope: CoroutineScope = viewModelScope
 
     private val mutableViewAction: MutableOneShotEvent<MapViewAction> = MutableOneShotEvent()
     val viewAction: OneShotEvent<MapViewAction> = mutableViewAction
-
-    init {
-        loadMapUrl(savedState)
-    }
 
     fun onBackPressed() {
         webViewController.backToPreviousPage {
@@ -33,17 +29,20 @@ class MapViewModel(
         }
     }
 
-    private fun loadMapUrl(savedState: SavedStateHandle) = coroutineScope.launch {
-        val longitude = 0.0
-        val latitude = 0.0
-        whatMealBo.loadMapUri(
-            longitude, latitude, savedState.getOrThrow(INTENT_PARAM_FOOD_NAME)
-        ).onSuccess {
-            webViewController.loadUrl(it)
-        }.onFailure {
-            mutableViewAction.post(MapViewAction.FinishScreen)
+    fun onLocationLoaded(latitude: String, longitude: String) =
+        loadMapUrl(savedState, latitude, longitude)
+
+    private fun loadMapUrl(savedState: SavedStateHandle, latitude: String, longitude: String) =
+        coroutineScope.launch {
+            whatMealBo.loadMapUri(
+                longitude, latitude, savedState.getOrThrow(INTENT_PARAM_FOOD_NAME)
+            ).onSuccess {
+                webViewController.loadUrl(it)
+            }.onFailure {
+                // @TODO: We should properly inform the user of the error situation.
+                mutableViewAction.post(MapViewAction.FinishScreen)
+            }
         }
-    }
 
     class Factory(
         private val whatMealBo: WhatMealBoDelegator,

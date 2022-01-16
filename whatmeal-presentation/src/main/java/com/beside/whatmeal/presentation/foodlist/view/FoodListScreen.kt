@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -55,7 +56,7 @@ fun FoodListScreen(
             Title()
             Description()
 
-            Box(modifier = Modifier.weight(0.6f))
+            Box(modifier = Modifier.weight(0.3f))
 
             AnimatedContent(
                 targetState = pagingState,
@@ -70,7 +71,11 @@ fun FoodListScreen(
                 if (pagingState == FoodListPagingState.LOADING) {
                     ListPlaceHolder()
                 } else {
-                    FoodListView(foodDataList = foodItemList, onFoodSelect = onFoodSelect)
+                    FoodListView(
+                        foodDataList = foodItemList,
+                        selectedFoodItem = selectedFoodItem,
+                        onFoodSelect = onFoodSelect
+                    )
                 }
             }
             Box(modifier = Modifier.weight(0.3f))
@@ -80,6 +85,9 @@ fun FoodListScreen(
                 onRefreshClick = onRefreshClick,
                 pagingState = pagingState
             )
+
+            Box(modifier = Modifier.weight(0.3f))
+
             NextButton(
                 onNextClick = onNextClick,
                 enabled = selectedFoodItem != null
@@ -95,21 +103,21 @@ private fun Title() = Text(
     style = WhatMealTextStyle.Bold,
     fontSize = 21.sp,
     modifier = Modifier
-        .padding(top = 44.dp, start = 20.dp, end = 20.dp)
+        .padding(top = 44.dp, start = 28.dp, end = 28.dp)
         .fillMaxWidth()
 )
 
 @Composable
 private fun Description() {
     Text(
-        text = "왓밀이 추천하는 메뉴입니다. 원하는 메뉴를 누르시면 주소검색 후 맛집을 추천해드릴게요.",
+        text = "왓밀이 추천하는 메뉴들입니다!\n원하는 메뉴를 선택하면 지도에서 찾아 드릴께요!:)",
         modifier = Modifier
-            .padding(top = 3.dp, start = 20.dp, end = 20.dp)
+            .padding(top = 13.dp, start = 28.dp, end = 28.dp)
             .fillMaxWidth(),
-        color = WhatMealColor.Gray1,
+        color = Color.Black,
         fontSize = 14.sp,
-        style = WhatMealTextStyle.Medium,
-        softWrap = true
+        lineHeight = 25.sp,
+        style = WhatMealTextStyle.Medium
     )
 }
 
@@ -117,36 +125,28 @@ private fun Description() {
 private fun ListPlaceHolder() {
     ConstraintLayout(
         modifier = Modifier
+            .padding(top = 43.dp, bottom = 18.dp)
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(top = 72.dp, end = 37.dp)
     ) {
-        val (square, topRectangle, bottomRectangle) = createRefs()
+        val (square, topRectangle) = createRefs()
         Canvas(
             modifier = Modifier
                 .constrainAs(square) {
                     top.linkTo(parent.top)
-                    start.linkTo(parent.start, 53.dp)
-                    end.linkTo(parent.end, 59.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
                 }
-                .size(248.dp),
+                .width(240.dp)
+                .height(268.dp),
             onDraw = { drawRect(color = Color(0xFFC4C4C4)) }
         )
         Canvas(
             modifier = Modifier
                 .constrainAs(topRectangle) {
-                    top.linkTo(square.bottom, 18.dp)
-                    start.linkTo(square.start)
-                }
-                .width(159.dp)
-                .height(26.dp),
-            onDraw = { drawRect(color = Color(0xFFC4C4C4)) }
-        )
-        Canvas(
-            modifier = Modifier
-                .constrainAs(bottomRectangle) {
-                    top.linkTo(topRectangle.bottom, 19.dp)
-                    start.linkTo(square.start)
+                    top.linkTo(square.bottom, 30.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
                 }
                 .width(113.dp)
                 .height(26.dp),
@@ -156,27 +156,37 @@ private fun ListPlaceHolder() {
 }
 
 @Composable
-private fun FoodListView(foodDataList: List<FoodItem>, onFoodSelect: (FoodItem) -> Unit) {
+private fun FoodListView(
+    foodDataList: List<FoodItem>,
+    selectedFoodItem: FoodItem?,
+    onFoodSelect: (FoodItem) -> Unit
+) {
     LazyRow(
         modifier = Modifier
-            .padding(top = 44.dp)
+            .padding(top = 25.dp)
             .wrapContentHeight()
-            .fillMaxWidth()
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        item {
+            Box(modifier = Modifier
+                .width(((LocalConfiguration.current.screenWidthDp - 272) / 2).dp)
+            )
+        }
         items(
             items = foodDataList,
             itemContent = { item ->
                 Card(
                     modifier = Modifier
                         .width(240.dp)
-                        .height(360.dp)
-                        .padding(
-                            start = if (foodDataList.indexOf(item) == 0) 20.dp else 0.dp,
-                            end = 16.dp
-                        ),
+                        .height(360.dp),
                     elevation = 1.dp,
                     shape = RoundedCornerShape(16.dp),
-                    border = BorderStroke(0.3.dp, Color(0xFFBDBDBD)),
+                    border = if (item == selectedFoodItem) {
+                        BorderStroke(6.dp, WhatMealColor.Brand100)
+                    } else {
+                        BorderStroke(0.3.dp, Color(0xFFBDBDBD))
+                    },
                     indication = rememberRipple(color = WhatMealColor.Bg100),
                     onClick = { onFoodSelect(item) }
                 ) {
@@ -226,6 +236,11 @@ private fun FoodListView(foodDataList: List<FoodItem>, onFoodSelect: (FoodItem) 
                 }
             }
         )
+        item {
+            Box(modifier = Modifier
+                .width(((LocalConfiguration.current.screenWidthDp - 272) / 2).dp)
+            )
+        }
     }
 }
 
@@ -239,20 +254,15 @@ private fun RefreshButton(
         onClick = onRefreshClick,
         modifier = Modifier
             .then(modifier)
-            .padding(top = 37.dp)
+            .padding(top = 25.dp, bottom = 25.dp)
             .size(40.dp)
             .clip(CircleShape),
-        enabled = pagingState == FoodListPagingState.HAS_NEXT
+        enabled = pagingState != FoodListPagingState.LOADING
     ) {
-        when (pagingState) {
-            FoodListPagingState.HAS_NEXT -> Icon(
-                painter = painterResource(R.drawable.refresh),
-                contentDescription = null
-            )
-            else -> {
-                // @TODO: Not implemented yet.
-            }
-        }
+        Icon(
+            painter = painterResource(R.drawable.refresh),
+            contentDescription = null
+        )
     }
 }
 
@@ -263,8 +273,7 @@ private fun NextButton(
 ) = PrimaryButton(
     onClick = onNextClick,
     enabled = enabled,
-    text = "다음",
-    modifier = Modifier.padding(top = 6.dp)
+    text = "찾기"
 )
 
 @Preview(heightDp = 750)

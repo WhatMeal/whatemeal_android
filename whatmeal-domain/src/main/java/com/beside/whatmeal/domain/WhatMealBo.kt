@@ -22,9 +22,10 @@ class WhatMealBo private constructor(private val whatMealRepository: WhatMealRep
     suspend fun registerTrackingId(
         age: Age,
         mealTime: MealTime,
-        standards: List<Standard>
+        standard1: Standard,
+        standard2: Standard
     ): Result<Unit> =
-        RegisterTrackingIdTask(whatMealRepository, age, mealTime, standards).executeOnCoroutine()
+        RegisterTrackingIdTask(whatMealRepository, age, mealTime, standard1, standard2).executeOnCoroutine()
 
     @AnyThread
     suspend fun loadFoodListFirstPage(
@@ -51,11 +52,13 @@ class WhatMealBo private constructor(private val whatMealRepository: WhatMealRep
 
     @AnyThread
     suspend fun loadMapUri(
-        latitude: Double,
-        longitude: Double,
+        latitude: String,
+        longitude: String,
         foodName: String
     ): Result<String> =
         LoadMapUrlTask(whatMealRepository, latitude, longitude, foodName).executeOnCoroutine()
+
+
 
     companion object : ComponentFactory<WhatMealBo>() {
         override fun createComponent(context: Context): WhatMealBo {

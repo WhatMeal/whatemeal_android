@@ -24,7 +24,7 @@ enum class SurveyRoundState(
         hasHeader = true,
         necessarySelectionCount = 1,
         boldDescriptionText = "현재 고민중인\n식사시간은 언제인가요?",
-        descriptionText = "식사 시간별로 추천드리는 메뉴가 달라져요",
+        descriptionText = "식사 시간별로 추천드리는\n메뉴가 달라져요",
         listType = SurveyListType.VERTICAL
     ),
     STANDARD(
@@ -32,7 +32,7 @@ enum class SurveyRoundState(
         hasHeader = true,
         necessarySelectionCount = 2,
         boldDescriptionText = "메뉴 선택시 가장 중요하게\n생각하는 2가지는 무엇인가요?",
-        descriptionText = "중요도에 따라 더 정교한 메뉴를 추천해 드릴게요",
+        descriptionText = "중요도에 따라 더 정교한 메뉴를\n추천해 드릴게요",
         listType = SurveyListType.VERTICAL
     );
 

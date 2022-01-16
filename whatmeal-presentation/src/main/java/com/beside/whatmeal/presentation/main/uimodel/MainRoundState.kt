@@ -2,6 +2,7 @@ package com.beside.whatmeal.presentation.main.uimodel
 
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 
@@ -9,62 +10,56 @@ import androidx.compose.ui.unit.sp
 enum class MainRoundState(
     @IntRange(from = 1) val pageOrder: Int,
     val hasHeader: Boolean,
-    val titleText: String,
     @FloatRange(from = 0.0, to = 1.0) val percentage: Float,
     @IntRange(from = 0) val selectableCount: Int,
     val boldDescriptionText: String,
     val descriptionText: String,
-    val optionTextSize: TextUnit
+    val selectedOptionColor: Color
 ) {
     BASIC(
         pageOrder = 1,
         hasHeader = false,
-        titleText = "기본",
-        percentage = 0f,
-        selectableCount = 2,
-        boldDescriptionText = "먼저, 기본을 구성 해보세요!",
-        descriptionText = "선택항목이 없다면\n그 외를 선택해주세요:)",
-        optionTextSize = 21.sp
+        percentage = 0.2f,
+        selectableCount = 1,
+        boldDescriptionText = "먼저, 기본을 구성해 보세요!",
+        descriptionText = "메뉴의 향방을 결정 짓는\n기본을 선택 해주세요!:)",
+        selectedOptionColor = Color(0xFFF1EA47)
     ),
     SOUP(
         pageOrder = 2,
         hasHeader = true,
-        titleText = "국물 여부",
-        percentage = 0.2f,
+        percentage = 0.4f,
         selectableCount = 1,
-        boldDescriptionText = "먼저, 기본을 구성 해보세요!",
-        descriptionText = "선택항목이 없다면\n그 외를 선택해주세요:)",
-        optionTextSize = 21.sp
+        boldDescriptionText = "다음, 국물 여부를 선택하세요!",
+        descriptionText = "국물이 있는 음식과 없는 음식은\n하늘과 땅 차이죠? ^_^",
+        selectedOptionColor = Color(0xFFD898FF)
     ),
     COOK(
         pageOrder = 3,
         hasHeader = true,
-        titleText = "메인 조리 방법",
-        percentage = 0.4f,
-        selectableCount = 2,
+        percentage = 0.6f,
+        selectableCount = 1,
         boldDescriptionText = "조리 방법을 선택하세요!",
-        descriptionText = "선택항목이 없다면\n그 외를 선택해주세요:)",
-        optionTextSize = 21.sp
+        descriptionText = "어떤 조리 방법이 끌리시나요?:)",
+        selectedOptionColor = Color(0xFFB1F147)
     ),
     INGREDIENT(
         pageOrder = 4,
         hasHeader = true,
-        titleText = "재료",
-        percentage = 0.6f,
-        selectableCount = 2,
-        boldDescriptionText = "먼저, 기본을 구성해보세요!",
-        descriptionText = "선택항목이 없다면\n그 외를 선택해주세요:)",
-        optionTextSize = 16.sp
+        percentage = 0.8f,
+        selectableCount = 1,
+        boldDescriptionText = "메인 재료를 선택하세요!",
+        descriptionText = "어떤 재료를 골라 볼까요?\n결과까지 얼마 남지 않았어요!:)",
+        selectedOptionColor = Color(0xFF9AAAFF)
     ),
     STATE(
         pageOrder = 5,
         hasHeader = true,
-        titleText = "상태",
-        percentage = 0.8f,
-        selectableCount = 2,
-        boldDescriptionText = "먼저, 기본을 구성해보세요!",
-        descriptionText = "선택항목이 없다면\n그 외를 선택해주세요:)",
-        optionTextSize = 16.sp
+        percentage = 1f,
+        selectableCount = 1,
+        boldDescriptionText = "마지막으로,\n현재 기분을 선택해주세요!",
+        descriptionText = "기분에 따라 추천드리는 메뉴가 달라집니다:)",
+        selectedOptionColor = Color(0xFFFB9CF7)
     );
 
     companion object {

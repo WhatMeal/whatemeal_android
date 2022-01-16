@@ -3,11 +3,14 @@ package com.beside.whatmeal.presentation.main.viewmodel
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.core.os.bundleOf
 import androidx.lifecycle.*
 import androidx.savedstate.SavedStateRegistryOwner
 import com.beside.whatmeal.presentation.common.*
 import com.beside.whatmeal.presentation.common.view.progress.CommonProgressViewModel
+import com.beside.whatmeal.presentation.foodlist.uimodel.FoodListViewAction
+import com.beside.whatmeal.presentation.foodlist.viewmodel.FoodListViewModel
 import com.beside.whatmeal.presentation.main.uimodel.*
 import com.beside.whatmeal.presentation.main.view.MainActivity
 import com.beside.whatmeal.presentation.survey.uimodel.Age
@@ -111,11 +114,15 @@ class MainViewModel(
         whatMealBo.registerTrackingId(
             savedState.getOrThrow(INTENT_PARAM_AGE),
             savedState.getOrThrow(INTENT_PARAM_MEAL_TILE),
-            savedState.getOrThrow(INTENT_PARAM_STANDARD)
+            savedState.getOrThrow(INTENT_PARAM_STANDARD_ONE),
+            savedState.getOrThrow(INTENT_PARAM_STANDARD_TWO)
         ).onSuccess {
             mutableIsTaskFinished.value = true
         }.onFailure {
-            // TODO: Not implemented yet.
+            // @TODO: We should properly inform the user of the error situation.
+            Log.e(TAG, "Fail to registerTrackingIdBy", it)
+            mutableMainViewAction.post(MainViewAction.FailToRegisterTrackingId)
+            stopAutoIncrementProgress()
         }
     }
 
@@ -164,18 +171,21 @@ class MainViewModel(
 
         private const val INTENT_PARAM_AGE = "age"
         private const val INTENT_PARAM_MEAL_TILE = "meal_time"
-        private const val INTENT_PARAM_STANDARD = "standards"
+        private const val INTENT_PARAM_STANDARD_ONE = "standard_1"
+        private const val INTENT_PARAM_STANDARD_TWO = "standard_2"
 
         fun createIntent(
             context: Context,
             age: Age,
             mealTime: MealTime,
-            standards: List<Standard>
+            standard1: Standard,
+            standard2: Standard
         ): Intent = Intent(context, MainActivity::class.java).putExtras(
             bundleOf(
                 INTENT_PARAM_AGE to age,
                 INTENT_PARAM_MEAL_TILE to mealTime,
-                INTENT_PARAM_STANDARD to standards
+                INTENT_PARAM_STANDARD_ONE to standard1,
+                INTENT_PARAM_STANDARD_TWO to standard2
             )
         )
     }

@@ -48,7 +48,8 @@ class SurveyActivity : ComponentActivity() {
                 context = this,
                 viewAction.age,
                 viewAction.mealTime,
-                viewAction.standards
+                viewAction.standard1,
+                viewAction.standard2
             )
             startActivity(intent)
         }

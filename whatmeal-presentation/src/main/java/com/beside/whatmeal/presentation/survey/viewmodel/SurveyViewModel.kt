@@ -89,9 +89,13 @@ class SurveyViewModel : ViewModel() {
     }.toList()
 
     private fun MutableMap<SurveyRoundState, MutableList<SurveyItem>>.toStartMainScreenAction()
-            : SurveyViewAction.StartMainScreen = SurveyViewAction.StartMainScreen(
-        age = this[SurveyRoundState.AGE].firstOrThrow(),
-        mealTime = this[SurveyRoundState.MEAL_TIME].firstOrThrow(),
-        standards = this.getOrThrow(SurveyRoundState.STANDARD)
-    )
+            : SurveyViewAction.StartMainScreen {
+        val standards: List<Standard> = this.getOrThrow(SurveyRoundState.STANDARD)
+        return SurveyViewAction.StartMainScreen(
+            age = this[SurveyRoundState.AGE].firstOrThrow(),
+            mealTime = this[SurveyRoundState.MEAL_TIME].firstOrThrow(),
+            standard1 = standards[0],
+            standard2 = standards[1]
+        )
+    }
 }

@@ -8,4 +8,6 @@ sealed class MainViewAction {
         val ingredients: List<Ingredient>,
         val states: List<State>
     ) : MainViewAction()
+
+    object FailToRegisterTrackingId : MainViewAction()
 }

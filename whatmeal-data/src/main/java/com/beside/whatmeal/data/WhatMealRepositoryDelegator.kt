@@ -20,11 +20,13 @@ class WhatMealRepositoryDelegator(
     override fun registerTrackingId(
         age: Age,
         mealTime: MealTime,
-        standards: List<Standard>
-    ): Result<String> = dataRepository.registerTrackingId(
+        standard1: Standard,
+        standard2: Standard
+    ): Result<Int> = dataRepository.registerTrackingId(
         age.toDataModel(),
         mealTime.toDataModel(),
-        standards.map { it.toDataModel() }
+        standard1.toDataModel(),
+        standard2.toDataModel()
     )
 
     @WorkerThread
@@ -49,9 +51,9 @@ class WhatMealRepositoryDelegator(
 
     @WorkerThread
     override fun loadMapUrl(
-        trackingId: String,
-        latitude: Double,
-        longitude: Double,
+        trackingId: Int,
+        latitude: String,
+        longitude: String,
         foodName: String
     ): Result<String> = dataRepository.loadMapUrl(trackingId, latitude, longitude, foodName)
 }

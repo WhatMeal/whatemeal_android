@@ -1,9 +1,14 @@
 package com.beside.whatmeal.presentation.map
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.webkit.*
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -13,10 +18,18 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.app.ActivityCompat
 import com.beside.whatmeal.presentation.common.WhatMealBoDelegator
 import com.beside.whatmeal.presentation.common.view.Header
 import com.beside.whatmeal.presentation.common.resource.WhatMealColor
+import com.google.android.gms.location.LocationServices
 import com.linecorp.lich.component.getComponent
+import com.google.android.gms.tasks.OnTokenCanceledListener
+
+import com.google.android.gms.tasks.CancellationToken
+
+import com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY
+
 
 class MapActivity : ComponentActivity() {
     private val webView: WebView by lazy { WebView(this) }
@@ -45,14 +58,54 @@ class MapActivity : ComponentActivity() {
                         factory = { webView },
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(WhatMealColor.Bg0)
                     )
                 }
             }
         }
-
+        loadCurrentLocation()
         viewModel.viewAction.subscribe(this, this::handleViewAction)
     }
+
+    // @TODO: Please consider which layer this is.
+    @SuppressLint("MissingPermission")
+    private fun loadCurrentLocation() {
+        if (!hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) ||
+            !hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+        ) {
+            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+                if (it.all { permission -> !permission.value }) {
+                    // @TODO: We need to inform the user that the service is not available.
+                    finish()
+                    return@registerForActivityResult
+                }
+                loadCurrentLocation()
+            }.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+
+        val locationClient = LocationServices.getFusedLocationProviderClient(applicationContext)
+        locationClient.getCurrentLocation(
+            PRIORITY_HIGH_ACCURACY,
+            object : CancellationToken() {
+                override fun onCanceledRequested(p0: OnTokenCanceledListener): CancellationToken =
+                    this
+
+                override fun isCancellationRequested(): Boolean = this@MapActivity.isDestroyed
+            }
+        ).addOnSuccessListener { location ->
+            if(location == null) {
+                finish()
+            }
+            viewModel.onLocationLoaded(location.latitude.toString(), location.longitude.toString())
+        }
+    }
+
+    private fun hasPermission(permission: String) =
+        ActivityCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
 
     private fun handleViewAction(viewAction: MapViewAction) = when (viewAction) {
         is MapViewAction.FinishScreen -> finish()

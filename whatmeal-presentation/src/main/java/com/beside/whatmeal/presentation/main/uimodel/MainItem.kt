@@ -1,20 +1,27 @@
 package com.beside.whatmeal.presentation.main.uimodel
 
+import androidx.annotation.DrawableRes
+import com.beside.whatmeal.R
+
 interface MainItem {
     val text: String
 }
 
-// @TODO: Please remove the id in the UI data.
-enum class Basic(override val text: String) : MainItem {
-    RICE("밥"),
-    NOODLE("면"),
-    BREAD("빵"),
-    ETC("그외")
+interface MainWithIconItem : MainItem {
+    @get:DrawableRes
+    val iconDrawableRes: Int
 }
 
-enum class Soup(override val text: String) : MainItem {
-    SOUP("국물 O"),
-    NO_SOUP("국물 X")
+enum class Basic(override val text: String, override val iconDrawableRes: Int) : MainWithIconItem {
+    RICE("밥", R.drawable.rice),
+    ETC("그외", R.drawable.extra),
+    NOODLE("면", R.drawable.noodle),
+    BREAD("빵", R.drawable.bread)
+}
+
+enum class Soup(override val text: String, override val iconDrawableRes: Int) : MainWithIconItem {
+    SOUP("국물 있는", R.drawable.soup),
+    NO_SOUP("국물 없는", R.drawable.nonsoup)
 }
 
 enum class Cook(override val text: String) : MainItem {

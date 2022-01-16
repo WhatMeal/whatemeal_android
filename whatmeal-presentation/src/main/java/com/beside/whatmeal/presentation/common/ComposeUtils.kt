@@ -1,6 +1,7 @@
 package com.beside.whatmeal.presentation.common
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
@@ -8,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.reflect.KProperty
 
@@ -45,10 +47,12 @@ fun <T> ((T) -> Unit).alsoAnimatedScrollToTop(
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun (() -> Unit).alsoAnimatedScrollToTop(
+    coroutineScope: CoroutineScope,
     scrollState: ScrollState
 ): () -> Unit {
-    rememberCoroutineScope().launch {
-        scrollState.animateScrollTo(0, tween(300, 0, LinearOutSlowInEasing))
+    coroutineScope.launch {
+        Log.e("TEST", "TEST $scrollState $this", Exception())
+//        scrollState.animateScrollTo(0, tween(300, 0, LinearOutSlowInEasing))
     }
     return this
 }

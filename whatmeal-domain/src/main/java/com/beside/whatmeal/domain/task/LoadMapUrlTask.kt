@@ -7,8 +7,8 @@ import com.beside.whatmeal.domain.interactor.WhatMealRepositoryInterface
 
 class LoadMapUrlTask(
     private val repository: WhatMealRepositoryInterface,
-    private val latitude: Double,
-    private val longitude: Double,
+    private val latitude: String,
+    private val longitude: String,
     private val foodName: String
 ) : Task<Result<String>>() {
     private val trackingManager: TrackingManager = TrackingManager

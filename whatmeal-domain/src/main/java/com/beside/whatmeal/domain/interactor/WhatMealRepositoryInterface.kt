@@ -17,8 +17,9 @@ interface WhatMealRepositoryInterface {
     fun registerTrackingId(
         age: Age,
         mealTime: MealTime,
-        standards: List<Standard>
-    ): Result<String>
+        standard1: Standard,
+        standard2: Standard
+    ): Result<Int>
 
     @WorkerThread
     fun loadFoodList(
@@ -34,9 +35,9 @@ interface WhatMealRepositoryInterface {
 
     @WorkerThread
     fun loadMapUrl(
-        trackingId: String,
-        latitude: Double,
-        longitude: Double,
+        trackingId: Int,
+        latitude: String,
+        longitude: String,
         foodName: String
     ): Result<String>
 
