@@ -16,11 +16,11 @@ import com.beside.whatmeal.presentation.main.uimodel.MainRoundState
 import com.beside.whatmeal.presentation.main.uimodel.MainViewAction
 import com.beside.whatmeal.presentation.main.viewmodel.MainViewModel
 import com.beside.whatmeal.presentation.common.observeAsNotNullState
-import com.linecorp.lich.component.getComponent
+import com.beside.whatmeal.servicelocator.getInstance
 
 class MainActivity : ComponentActivity() {
     private val mainViewModel: MainViewModel by viewModels {
-        val whatMealBo = getComponent(WhatMealBoDelegator)
+        val whatMealBo = getInstance(WhatMealBoDelegator)
         MainViewModel.Factory(whatMealBo, this, intent.extras)
     }
 

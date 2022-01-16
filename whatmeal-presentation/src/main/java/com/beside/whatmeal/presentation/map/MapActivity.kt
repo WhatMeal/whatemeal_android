@@ -3,7 +3,6 @@ package com.beside.whatmeal.presentation.map
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.location.Location
 import android.os.Bundle
 import android.webkit.*
 import androidx.activity.ComponentActivity
@@ -22,8 +21,8 @@ import androidx.core.app.ActivityCompat
 import com.beside.whatmeal.presentation.common.WhatMealBoDelegator
 import com.beside.whatmeal.presentation.common.view.Header
 import com.beside.whatmeal.presentation.common.resource.WhatMealColor
+import com.beside.whatmeal.servicelocator.getInstance
 import com.google.android.gms.location.LocationServices
-import com.linecorp.lich.component.getComponent
 import com.google.android.gms.tasks.OnTokenCanceledListener
 
 import com.google.android.gms.tasks.CancellationToken
@@ -34,7 +33,7 @@ import com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY
 class MapActivity : ComponentActivity() {
     private val webView: WebView by lazy { WebView(this) }
     private val viewModel: MapViewModel by viewModels {
-        val whatMealBo = getComponent(WhatMealBoDelegator)
+        val whatMealBo = getInstance(WhatMealBoDelegator)
         val webViewController = MapWebViewController(webView, this)
         MapViewModel.Factory(whatMealBo, webViewController, this, intent.extras)
     }

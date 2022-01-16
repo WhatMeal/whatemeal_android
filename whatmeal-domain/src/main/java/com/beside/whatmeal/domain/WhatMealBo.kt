@@ -5,8 +5,8 @@ import androidx.annotation.AnyThread
 import com.beside.whatmeal.domain.domainmodel.*
 import com.beside.whatmeal.domain.interactor.WhatMealRepositoryInterface
 import com.beside.whatmeal.domain.task.*
-import com.linecorp.lich.component.ComponentFactory
-import com.linecorp.lich.component.getComponent
+import com.beside.whatmeal.servicelocator.InstantiationFactory
+import com.beside.whatmeal.servicelocator.getInstance
 
 class WhatMealBo private constructor(private val whatMealRepository: WhatMealRepositoryInterface) {
 
@@ -60,9 +60,9 @@ class WhatMealBo private constructor(private val whatMealRepository: WhatMealRep
 
 
 
-    companion object : ComponentFactory<WhatMealBo>() {
-        override fun createComponent(context: Context): WhatMealBo {
-            val whatMealRepository = context.getComponent(WhatMealRepositoryInterface)
+    companion object : InstantiationFactory<WhatMealBo>() {
+        override fun createInstance(context: Context): WhatMealBo {
+            val whatMealRepository = context.getInstance(WhatMealRepositoryInterface)
             return WhatMealBo(whatMealRepository)
         }
     }

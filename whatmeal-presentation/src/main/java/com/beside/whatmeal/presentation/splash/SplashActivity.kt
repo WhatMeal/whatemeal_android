@@ -10,12 +10,12 @@ import com.beside.whatmeal.presentation.common.WhatMealBoDelegator
 import com.beside.whatmeal.presentation.splash.viewmodel.SplashViewModel
 import com.beside.whatmeal.presentation.survey.view.SurveyActivity
 import com.beside.whatmeal.presentation.tutorial.view.TutorialActivity
-import com.linecorp.lich.component.getComponent
+import com.beside.whatmeal.servicelocator.getInstance
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : ComponentActivity() {
     private val splashViewModel: SplashViewModel by viewModels {
-        val whatMealBO = getComponent(WhatMealBoDelegator)
+        val whatMealBO = getInstance(WhatMealBoDelegator)
         SplashViewModel.Factory(whatMealBO)
     }
 

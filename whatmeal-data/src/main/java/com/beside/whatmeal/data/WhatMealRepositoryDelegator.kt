@@ -1,11 +1,14 @@
 package com.beside.whatmeal.data
 
+import android.content.Context
 import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
 import com.beside.whatmeal.data.mapper.toDataModel
 import com.beside.whatmeal.data.mapper.toDomainModel
 import com.beside.whatmeal.domain.domainmodel.*
 import com.beside.whatmeal.domain.interactor.WhatMealRepositoryInterface
+import com.beside.whatmeal.servicelocator.InstantiationFactory
+import com.beside.whatmeal.servicelocator.getInstance
 
 class WhatMealRepositoryDelegator(
     private val dataRepository: WhatMealRepository
@@ -56,4 +59,11 @@ class WhatMealRepositoryDelegator(
         longitude: String,
         foodName: String
     ): Result<String> = dataRepository.loadMapUrl(trackingId, latitude, longitude, foodName)
+}
+
+class WhatMealRepositoryDelegatorFactory : InstantiationFactory<WhatMealRepositoryDelegator>() {
+    override fun createInstance(context: Context): WhatMealRepositoryDelegator {
+        val dataRepository = context.getInstance(WhatMealRepository)
+        return WhatMealRepositoryDelegator(dataRepository)
+    }
 }

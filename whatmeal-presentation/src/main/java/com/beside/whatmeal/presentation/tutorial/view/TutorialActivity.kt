@@ -8,11 +8,11 @@ import com.beside.whatmeal.presentation.common.WhatMealBoDelegator
 import com.beside.whatmeal.presentation.survey.view.SurveyActivity
 import com.beside.whatmeal.presentation.tutorial.presenter.TutorialPresenter
 import com.beside.whatmeal.presentation.tutorial.presenter.TutorialPresenterImpl
-import com.linecorp.lich.component.getComponent
+import com.beside.whatmeal.servicelocator.getInstance
 
 class TutorialActivity : AppCompatActivity(), TutorialView {
     private val tutorialPresenter: TutorialPresenter by lazy {
-        val whatMealBo = getComponent(WhatMealBoDelegator)
+        val whatMealBo = getInstance(WhatMealBoDelegator)
         TutorialPresenterImpl(this, whatMealBo)
     }
 

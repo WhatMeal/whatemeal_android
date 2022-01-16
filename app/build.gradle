@@ -58,10 +58,10 @@ android {
 }
 
 dependencies {
+    implementation project(':whatmeal-servicelocator')
     implementation project(':whatmeal-presentation')
     implementation project(':whatmeal-domain')
     implementation project(':whatmeal-data')
 
     implementation 'androidx.core:core-ktx:1.7.0'
-    implementation "com.linecorp.lich:component:2.7.0"
 }

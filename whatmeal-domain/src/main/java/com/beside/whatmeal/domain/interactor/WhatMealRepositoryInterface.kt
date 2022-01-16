@@ -1,10 +1,9 @@
 package com.beside.whatmeal.domain.interactor
 
-import android.content.Context
 import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
 import com.beside.whatmeal.domain.domainmodel.*
-import com.linecorp.lich.component.ComponentFactory
+import com.beside.whatmeal.servicelocator.ClassLoaderFactory
 
 interface WhatMealRepositoryInterface {
     @AnyThread
@@ -41,11 +40,8 @@ interface WhatMealRepositoryInterface {
         foodName: String
     ): Result<String>
 
-    companion object : ComponentFactory<WhatMealRepositoryInterface>() {
-        override fun createComponent(context: Context): WhatMealRepositoryInterface =
-            delegateCreation(
-                context,
-                "com.beside.whatmeal.data.WhatMealRepositoryDelegatorFactory"
-            )
+    companion object : ClassLoaderFactory<WhatMealRepositoryInterface>() {
+        override fun getInstantiationFactoryClassName(): String =
+            "com.beside.whatmeal.data.WhatMealRepositoryDelegatorFactory"
     }
 }

@@ -1,7 +1,6 @@
 package com.beside.whatmeal.data
 
 import android.content.Context
-import android.util.Log
 import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
 import com.beside.whatmeal.data.local.WhatMealLocalDataSource
@@ -11,8 +10,8 @@ import com.beside.whatmeal.data.remote.remotemodel.*
 import com.beside.whatmeal.data.remote.remotemodel.request.LoadFoodListRequest
 import com.beside.whatmeal.data.remote.remotemodel.request.LoadMapUrlRequest
 import com.beside.whatmeal.data.remote.remotemodel.request.RegisterTrackingIdRequest
-import com.linecorp.lich.component.ComponentFactory
-import com.linecorp.lich.component.getComponent
+import com.beside.whatmeal.servicelocator.InstantiationFactory
+import com.beside.whatmeal.servicelocator.getInstance
 
 class WhatMealRepository private constructor(
     private val localDataSource: WhatMealLocalDataSource,
@@ -77,10 +76,10 @@ class WhatMealRepository private constructor(
         return remoteDataSource.loadMapUrl(request).map { it.url }
     }
 
-    companion object : ComponentFactory<WhatMealRepository>() {
-        override fun createComponent(context: Context): WhatMealRepository =
+    companion object: InstantiationFactory<WhatMealRepository>() {
+        override fun createInstance(context: Context): WhatMealRepository =
             WhatMealRepository(
-                context.getComponent(WhatMealLocalDataSource),
+                context.getInstance(WhatMealLocalDataSource),
                 WhatMealRemoteDataSourceImpl
             )
     }

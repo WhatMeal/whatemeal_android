@@ -1,7 +1,7 @@
 package com.beside.whatmeal.presentation.main.uimodel
 
 import androidx.annotation.DrawableRes
-import com.beside.whatmeal.R
+import com.beside.whatmeal.presentation.R
 
 interface MainItem {
     val text: String

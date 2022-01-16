@@ -19,7 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.beside.whatmeal.R
+import com.beside.whatmeal.presentation.R
 import com.beside.whatmeal.presentation.common.view.PrimaryButton
 import com.beside.whatmeal.presentation.common.resource.WhatMealColor
 import com.beside.whatmeal.presentation.common.resource.WhatMealTextStyle

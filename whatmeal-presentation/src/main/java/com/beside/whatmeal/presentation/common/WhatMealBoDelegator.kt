@@ -11,8 +11,8 @@ import com.beside.whatmeal.presentation.mapper.toUiModel
 import com.beside.whatmeal.presentation.survey.uimodel.Age
 import com.beside.whatmeal.presentation.survey.uimodel.MealTime
 import com.beside.whatmeal.presentation.survey.uimodel.Standard
-import com.linecorp.lich.component.ComponentFactory
-import com.linecorp.lich.component.getComponent
+import com.beside.whatmeal.servicelocator.InstantiationFactory
+import com.beside.whatmeal.servicelocator.getInstance
 
 class WhatMealBoDelegator private constructor(private val domainBo: WhatMealBo) {
 
@@ -64,9 +64,9 @@ class WhatMealBoDelegator private constructor(private val domainBo: WhatMealBo) 
         foodName: String
     ): Result<String> = domainBo.loadMapUri(latitude, longitude, foodName)
 
-    companion object: ComponentFactory<WhatMealBoDelegator>() {
-        override fun createComponent(context: Context): WhatMealBoDelegator {
-            val domainBo = context.getComponent(WhatMealBo)
+    companion object: InstantiationFactory<WhatMealBoDelegator>() {
+        override fun createInstance(context: Context): WhatMealBoDelegator {
+            val domainBo = context.getInstance(WhatMealBo)
             return WhatMealBoDelegator(domainBo)
         }
     }

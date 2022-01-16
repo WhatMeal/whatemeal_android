@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.rememberImagePainter
-import com.beside.whatmeal.R
+import com.beside.whatmeal.presentation.R
 import com.beside.whatmeal.presentation.common.view.PrimaryButton
 import com.beside.whatmeal.presentation.common.resource.WhatMealColor
 import com.beside.whatmeal.presentation.common.resource.WhatMealTextStyle

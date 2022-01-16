@@ -17,11 +17,11 @@ import com.beside.whatmeal.presentation.foodlist.uimodel.FoodListViewAction
 import com.beside.whatmeal.presentation.foodlist.viewmodel.FoodListViewModel
 import com.beside.whatmeal.presentation.map.MapViewModel
 import com.beside.whatmeal.presentation.common.observeAsNotNullState
-import com.linecorp.lich.component.getComponent
+import com.beside.whatmeal.servicelocator.getInstance
 
 class FoodListActivity : ComponentActivity() {
     private val foodListViewModel: FoodListViewModel by viewModels {
-        val whatMealBo = getComponent(WhatMealBoDelegator)
+        val whatMealBo = getInstance(WhatMealBoDelegator)
         FoodListViewModel.Factory(whatMealBo, this, intent.extras)
     }
 

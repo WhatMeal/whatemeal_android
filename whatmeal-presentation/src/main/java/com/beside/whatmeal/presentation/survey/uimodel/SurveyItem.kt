@@ -1,7 +1,7 @@
 package com.beside.whatmeal.presentation.survey.uimodel
 
 import androidx.annotation.DrawableRes
-import com.beside.whatmeal.R
+import com.beside.whatmeal.presentation.R
 
 interface SurveyItem {
     val text: String

@@ -4,7 +4,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.unit.sp
-import com.beside.whatmeal.R
+import com.beside.whatmeal.presentation.R
 
 object WhatMealTextStyle {
     val Bold: TextStyle = TextStyle(

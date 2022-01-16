@@ -13,10 +13,11 @@ android {
 }
 
 dependencies {
+    implementation project(':whatmeal-servicelocator')
+
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_android_version"
     implementation "androidx.collection:collection-ktx:1.2.0"
-    implementation "com.linecorp.lich:component:2.7.0"
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
