@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
 import com.beside.whatmeal.presentation.common.WhatMealBoDelegator
@@ -51,7 +52,8 @@ class MapActivity : ComponentActivity() {
                         .background(WhatMealColor.Bg0)
                 ) {
                     CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
+                        modifier = Modifier.align(Alignment.Center),
+                        color = Color.Black
                     )
                     AndroidView(
                         factory = { webView },

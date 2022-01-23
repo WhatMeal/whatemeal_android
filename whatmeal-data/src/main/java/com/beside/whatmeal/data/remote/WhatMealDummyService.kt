@@ -88,6 +88,6 @@ object WhatMealDummyService {
 
     fun loadMapUrlBy(foodName: String, latitude: String, longitude: String): LoadMapUrlResponse =
         LoadMapUrlResponse(
-            "https://m.map.naver.com/search2/search.naver?query=$foodName&style=v5&sm=clk&centerCoord=$latitude:$longitude#/map/1"
+            "https://m.map.naver.com/search2/search.naver?query=$foodName&sm=shistory&style=v5#/map/1"
         ).also { Log.d("TEST", "$foodName $latitude $longitude") }
 }

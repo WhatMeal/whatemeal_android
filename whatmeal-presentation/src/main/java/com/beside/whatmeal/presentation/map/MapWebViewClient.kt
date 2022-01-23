@@ -3,6 +3,7 @@ package com.beside.whatmeal.presentation.map
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -55,10 +56,18 @@ class MapWebViewClient(private val activity: MapActivity) : WebViewClient() {
     }
 
     override fun onPageFinished(view: WebView?, url: String?) {
+        Log.d(TAG, "onPageFinished url: $url")
+
         if (url.isNullOrEmpty() || view == null) {
             return
         }
+
         job?.cancel()
+
+        if(url == LOCATION_PROVIDE_URL) {
+            provideLocationForMap(view, url)
+            return
+        }
 
         val uri = Uri.parse(url)
         when (uri.host) {
@@ -68,9 +77,40 @@ class MapWebViewClient(private val activity: MapActivity) : WebViewClient() {
         }
     }
 
+    private fun provideLocationForMap(webView: WebView, originalUrl: String) {
+        Log.e(TAG, "provideLocationForMap")
+        val clickOffScript = """javascript:(function() {             
+                        var oa_rd_off = document.getElementsByClassName("sp_map oa_rd_off")[0]
+                        
+                        if (oa_rd_off != null &&
+                             document.getElementsByClassName("sp_map oa_rd_loading")[0] == null) {
+                            oa_rd_off.click()
+                        }
+                    })();
+                """.trimIndent()
+        val checkProvidedScript = """
+                    if (document.getElementsByClassName("sp_map oa_rd_on")[0] != null &&
+                        document.getElementsByClassName("sp_map oa_rd_loading")[0] == null) {
+                        window.WhatMeal.onLocationProvided()
+                    }
+                """.trimIndent()
+        job = coroutineScope.launch {
+            withContext(Dispatchers.IO) {
+                repeat(Integer.MAX_VALUE) {
+                    withContext(Dispatchers.Main) {
+                        webView.evaluateJavascript(clickOffScript, null)
+                        webView.evaluateJavascript(checkProvidedScript, null)
+                    }
+                    delay(500)
+                }
+            }
+        }
+    }
+
+
     private fun runJsScriptForMap(webView: WebView) {
-        val jsScript = """
-                    javascript:(function() {
+        val styleScript = """
+                    javascript:(function() {                 
                         var header = document.getElementById('header');
                         header.style.display = 'none';
 
@@ -84,14 +124,13 @@ class MapWebViewClient(private val activity: MapActivity) : WebViewClient() {
                         map.style.height = '100%';
                     })();
                 """.trimIndent()
-
         job = coroutineScope.launch {
             withContext(Dispatchers.IO) {
-                repeat(Int.MAX_VALUE) {
+                repeat(100) {
                     withContext(Dispatchers.Main) {
-                        webView.evaluateJavascript(jsScript, null)
+                        webView.evaluateJavascript(styleScript, null)
                     }
-                    delay(100)
+                    delay(200)
                 }
             }
         }
@@ -133,6 +172,8 @@ class MapWebViewClient(private val activity: MapActivity) : WebViewClient() {
 
 
     companion object {
+        const val LOCATION_PROVIDE_URL =
+            "https://m.map.naver.com/search2/search.naver?query=%EC%9E%A5%EC%86%8C&sm=shistory&style=v5#/map/1"
         private const val TAG = "MapWebViewClient"
     }
 }
