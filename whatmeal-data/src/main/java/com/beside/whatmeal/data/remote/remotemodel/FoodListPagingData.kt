@@ -13,7 +13,7 @@ data class FoodListPagingData (
             response: LoadFoodListResponse
         ): FoodListPagingData {
             val nextRequest = if (response.hasNext) {
-                request.copy(pages = response.page + 1)
+                request.copy(page = response.page + 1)
             } else {
                 null
             }
@@ -26,9 +26,9 @@ data class FoodListPagingData (
 
 fun FoodListPagingData.copyBy(response: LoadFoodListResponse): FoodListPagingData {
     val nextRequest = if (response.hasNext) {
-        nextRequest?.copy(pages = response.page + 1)
+        nextRequest?.copy(page = response.page + 1)
     } else {
-        nextRequest?.copy(pages = 1)
+        nextRequest?.copy(page = 1)
     }
     return FoodListPagingData(
         nextRequest, response.hasNext

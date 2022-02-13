@@ -178,7 +178,7 @@ fun FoodListPagingData.toDomainModel(): FoodListPagingModel = FoodListPagingMode
     nextRequest?.cooks,
     nextRequest?.ingredients,
     nextRequest?.states,
-    nextRequest?.pages,
+    nextRequest?.page,
     hasNext
 )
 

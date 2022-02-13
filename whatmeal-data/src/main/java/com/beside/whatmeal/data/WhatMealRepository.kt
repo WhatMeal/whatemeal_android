@@ -51,7 +51,7 @@ class WhatMealRepository private constructor(
         )
         return remoteDataSource.loadFoodList(request).map {
             val pagingData = FoodListPagingData.createBy(request, it)
-            PagedFoodListData(it.food, pagingData)
+            PagedFoodListData(it.resFood, pagingData)
         }
     }
 
@@ -61,7 +61,7 @@ class WhatMealRepository private constructor(
 
         return remoteDataSource.loadFoodList(nextRequest).map {
             val nextPagingData = pagingData.copyBy(it)
-            PagedFoodListData(it.food, nextPagingData)
+            PagedFoodListData(it.resFood, nextPagingData)
         }
     }
 

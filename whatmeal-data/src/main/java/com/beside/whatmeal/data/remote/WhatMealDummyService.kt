@@ -81,7 +81,7 @@ object WhatMealDummyService {
     fun getFoodList(
         pages: Int
     ): LoadFoodListResponse = LoadFoodListResponse(
-        food = DUMMY_FOOD_ITEM_LIST[pages - 1],
+        resFood = DUMMY_FOOD_ITEM_LIST[pages - 1],
         page = pages,
         hasNext = pages <= 2
     )

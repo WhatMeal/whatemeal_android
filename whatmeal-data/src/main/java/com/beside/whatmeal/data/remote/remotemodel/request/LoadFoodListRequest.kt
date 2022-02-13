@@ -6,5 +6,5 @@ data class LoadFoodListRequest(
     val cooks: String,
     val ingredients: String,
     val states: String,
-    val pages: Int = 1
+    val page: Int = 1
 )

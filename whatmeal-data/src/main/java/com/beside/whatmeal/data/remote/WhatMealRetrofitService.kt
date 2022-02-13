@@ -20,7 +20,7 @@ interface WhatMealRetrofitService {
         @Query("cooks") cooks: String,
         @Query("ingredients") ingredients: String,
         @Query("states") states: String,
-        @Query("pages") pages: Int
+        @Query("page") page: Int
     ): Call<LoadFoodListResponse>
 
     @PUT("infos/finalfood")
@@ -33,5 +33,5 @@ fun WhatMealRetrofitService.getFoodList(request: LoadFoodListRequest) = getFoodL
     cooks = request.cooks,
     ingredients = request.ingredients,
     states = request.states,
-    pages = request.pages
+    page = request.page
 )

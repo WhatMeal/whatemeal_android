@@ -18,9 +18,8 @@ import java.util.concurrent.TimeUnit
 object WhatMealRemoteDataSourceImpl : WhatMealRemoteDataSource {
     private const val WHAT_MEAL_URL = "https://whatmeal.herokuapp.com"
 
-    // @TODO: Change logging level before release.
     private val loggingInterceptor: HttpLoggingInterceptor =
-        HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
+        HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.NONE)
 
     private val okHttpClient: OkHttpClient = OkHttpClient.Builder()
         .addInterceptor(loggingInterceptor)
@@ -43,15 +42,13 @@ object WhatMealRemoteDataSourceImpl : WhatMealRemoteDataSource {
     override fun registerTrackingId(
         request: RegisterTrackingIdRequest
     ): Result<RegisterTrackingIdResponse> = runCatchIOException {
-        Thread.sleep((Math.random() * 2000).toLong())
-        Result.success(WhatMealDummyService.requestTrackingId())
-//        val retrofitResponse = whatMealService.postOnBoarding(request).execute()
-//        val body = retrofitResponse.body()
-//        return@runCatchIOException if (retrofitResponse.isSuccessful && body != null) {
-//            Result.success(body)
-//        } else {
-//            Result.failure(WhatMealRemoteException())
-//        }
+        val retrofitResponse = whatMealService.postOnBoarding(request).execute()
+        val body = retrofitResponse.body()
+        return@runCatchIOException if (retrofitResponse.isSuccessful && body != null) {
+            Result.success(body)
+        } else {
+            Result.failure(WhatMealRemoteException())
+        }
     }
 
     override fun loadFoodList(request: LoadFoodListRequest): Result<LoadFoodListResponse> =
@@ -59,8 +56,7 @@ object WhatMealRemoteDataSourceImpl : WhatMealRemoteDataSource {
             val retrofitResponse = whatMealService.getFoodList(request).execute()
             val body = retrofitResponse.body()
             return@runCatchIOException if (retrofitResponse.isSuccessful && body != null) {
-//                Result.success(body)
-                Result.success(WhatMealDummyService.getFoodList(request.pages))
+                Result.success(body)
             } else {
                 Result.failure(WhatMealRemoteException())
             }
@@ -68,21 +64,13 @@ object WhatMealRemoteDataSourceImpl : WhatMealRemoteDataSource {
 
     override fun loadMapUrl(request: LoadMapUrlRequest): Result<LoadMapUrlResponse> =
         runCatchIOException {
-            Thread.sleep((Math.random() * 1500).toLong())
-            Result.success(
-                WhatMealDummyService.loadMapUrlBy(
-                    request.foodName,
-                    request.latitude,
-                    request.longitude
-                )
-            )
-//            val retrofitResponse = whatMealService.putFinalFood(request).execute()
-//            val body = retrofitResponse.body()
-//            return@runCatchIOException if (retrofitResponse.isSuccessful && body != null) {
-//                Result.success(body)
-//            } else {
-//                Result.failure(WhatMealRemoteException())
-//            }
+            val retrofitResponse = whatMealService.putFinalFood(request).execute()
+            val body = retrofitResponse.body()
+            return@runCatchIOException if (retrofitResponse.isSuccessful && body != null) {
+                Result.success(body)
+            } else {
+                Result.failure(WhatMealRemoteException())
+            }
         }
 
     private fun <T> runCatchIOException(block: () -> Result<T>): Result<T> = try {
