@@ -7,10 +7,10 @@ interface MainData {
 }
 
 enum class Basic(override val id: Int) : MainData {
-    RICE(0),
-    NOODLE(1),
-    BREAD(2),
-    ETC(3);
+    RICE(1),
+    NOODLE(3),
+    BREAD(4),
+    ETC(2);
 
     companion object {
         private val ID_INSTANCE_MAP = values().associateBy { it.id }
@@ -21,8 +21,8 @@ enum class Basic(override val id: Int) : MainData {
 }
 
 enum class Soup(override val id: Int) : MainData {
-    SOUP(0),
-    NO_SOUP(1);
+    SOUP(1),
+    NO_SOUP(2);
 
     companion object {
         private val ID_INSTANCE_MAP = values().associateBy { it.id }
@@ -33,13 +33,13 @@ enum class Soup(override val id: Int) : MainData {
 }
 
 enum class Cook(override val id: Int) : MainData {
-    SIMMER(0),
-    GRILL(1),
-    FRY(2),
-    STIR_FRY(3),
-    BOIL(4),
-    RAW(5),
-    SALT(6);
+    SIMMER(1),
+    GRILL(2),
+    FRY(3),
+    STIR_FRY(4),
+    BOIL(5),
+    RAW(6),
+    SALT(7);
 
     companion object {
         private val ID_INSTANCE_MAP = values().associateBy { it.id }
@@ -50,13 +50,13 @@ enum class Cook(override val id: Int) : MainData {
 }
 
 enum class Ingredient(override val id: Int) : MainData {
-    BEEF(0),
-    PORK(1),
-    CHICKEN(2),
-    VEGETABLE(3),
-    FISH(4),
-    DAIRY_PRODUCT(5),
-    CRUSTACEAN(6);
+    BEEF(1),
+    PORK(2),
+    CHICKEN(3),
+    VEGETABLE(4),
+    FISH(5),
+    DAIRY_PRODUCT(6),
+    CRUSTACEAN(7);
 
     companion object {
         private val ID_INSTANCE_MAP = values().associateBy { it.id }
@@ -67,13 +67,13 @@ enum class Ingredient(override val id: Int) : MainData {
 }
 
 enum class State(override val id: Int) : MainData {
-    EXCITED(0),
-    STRESS(1),
-    COLD(2),
-    NORMAL(3),
-    HOT(4),
-    GLOOMY(5),
-    HUNGRY(6);
+    EXCITED(1),
+    STRESS(2),
+    COLD(3),
+    NORMAL(4),
+    HOT(5),
+    GLOOMY(6),
+    HUNGRY(7);
 
     companion object {
         private val ID_INSTANCE_MAP = values().associateBy { it.id }
